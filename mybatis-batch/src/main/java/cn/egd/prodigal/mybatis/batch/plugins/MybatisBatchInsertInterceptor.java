@@ -14,38 +14,42 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Intercepts(@Signature(type = Executor.class, method = "update", args = {MappedStatement.class, Object.class}))
 public class MybatisBatchInsertInterceptor implements Interceptor {
 
     private SqlSessionFactory sqlSessionFactory;
 
+    private final Map<String, Class<?>> mapperClassMap = new HashMap<>();
+    private final Map<String, Method> mapperMethodMap = new HashMap<>();
+    private final Map<String, BatchInsert> batchInsertMap = new HashMap<>();
+
     @Override
     public Object intercept(Invocation invocation) throws Throwable {
         Object[] argsObjects = invocation.getArgs();
         MappedStatement mappedStatement = (MappedStatement) argsObjects[0];
         String id = mappedStatement.getId();
-        String mapperClassName = id.substring(0, id.lastIndexOf("."));
-        String methodName = id.substring(id.lastIndexOf(".") + 1);
-        Class<?> mapperClass = ClassUtils.forName(mapperClassName, getClass().getClassLoader());
-        Method method = ReflectionUtils.findMethod(mapperClass, methodName, List.class);
-        if (method == null) {
+        Class<?> mapperClass = findMapperClass(id);
+        Method mapperMethod = findMapperMethod(id, mapperClass);
+        if (mapperMethod == null) {
             return invocation.proceed();
         }
-        BatchInsert batchInsert = AnnotationUtils.findAnnotation(method, BatchInsert.class);
+        BatchInsert batchInsert = findBatchInsert(id);
         if (batchInsert == null) {
             return invocation.proceed();
         }
         Object object = argsObjects[1];
         if (object instanceof ParamMap) {
-            return invokeSingleInsert((ParamMap<?>) object, batchInsert, mapperClass);
+            return invokeSingleInsert(id, (ParamMap<?>) object, batchInsert, mapperClass);
         } else {
             return invocation.proceed();
         }
     }
 
-    private Object invokeSingleInsert(ParamMap<?> paramMap, BatchInsert batchInsert, Class<?> mapperClass) throws Throwable {
+    private Object invokeSingleInsert(String id, ParamMap<?> paramMap, BatchInsert batchInsert, Class<?> mapperClass) throws Throwable {
         List<?> pList;
         String listParamName = batchInsert.listParamName();
         if (paramMap.containsKey(listParamName)) {
@@ -58,16 +62,19 @@ public class MybatisBatchInsertInterceptor implements Interceptor {
                     .findAny().orElseThrow(() -> new PluginException("cannot find argument instance of List"));
         }
         String insertMethodName = batchInsert.insert();
-        Method insertMethod = ReflectionUtils.findMethod(mapperClass, insertMethodName, pList.get(0).getClass());
+        id = id.substring(0, id.lastIndexOf(".")) + "." + insertMethodName;
+        Method insertMethod = findMapperMethod(id, mapperClass);
         if (insertMethod == null) {
             throw new PluginException("cannot find insert method by name: " + insertMethodName);
         }
-        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH, false);
+        SqlSession sqlSession = getSqlSessionFactory().openSession(ExecutorType.BATCH, false);
         Object beanObject = sqlSession.getMapper(mapperClass);
         int batchSize = batchInsert.batchSize();
         int index = 1;
+        Object[] args = new Object[1];
         for (Object argument : pList) {
-            AopUtils.invokeJoinpointUsingReflection(beanObject, insertMethod, new Object[]{argument});
+            args[0] = argument;
+            AopUtils.invokeJoinpointUsingReflection(beanObject, insertMethod, args);
             if (index % batchSize == 0) {
                 commitAndClearCache(sqlSession);
             }
@@ -89,6 +96,43 @@ public class MybatisBatchInsertInterceptor implements Interceptor {
 
     public void setSqlSessionFactory(SqlSessionFactory sqlSessionFactory) {
         this.sqlSessionFactory = sqlSessionFactory;
+    }
+
+    private Class<?> findMapperClass(String id) throws ClassNotFoundException {
+        Class<?> aClass = mapperClassMap.get(id);
+        if (aClass == null) {
+            String mapperClassName = id.substring(0, id.lastIndexOf("."));
+            aClass = ClassUtils.forName(mapperClassName, getClass().getClassLoader());
+            mapperClassMap.put(id, aClass);
+        }
+        return aClass;
+    }
+
+    private Method findMapperMethod(String id, Class<?> mapperClass) {
+        Method method = mapperMethodMap.get(id);
+        if (method == null) {
+            String methodName = id.substring(id.lastIndexOf(".") + 1);
+            Method[] methods = ReflectionUtils.getDeclaredMethods(mapperClass);
+            for (Method m : methods) {
+                if (methodName.equals(m.getName())) {
+                    method = m;
+                    mapperMethodMap.put(id, method);
+                    break;
+                }
+            }
+        }
+        return method;
+    }
+
+    private BatchInsert findBatchInsert(String id) throws ClassNotFoundException {
+        if (batchInsertMap.containsKey(id)) {
+            return batchInsertMap.get(id);
+        }
+        Class<?> mapperClass = findMapperClass(id);
+        Method mapperMethod = findMapperMethod(id, mapperClass);
+        BatchInsert batchInsert = AnnotationUtils.findAnnotation(mapperMethod, BatchInsert.class);
+        batchInsertMap.put(id, batchInsert);
+        return batchInsert;
     }
 
 }

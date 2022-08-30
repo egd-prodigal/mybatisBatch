@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>mybatis-batch</artifactId>
+    <artifactId>mybatis-batch-starter</artifactId>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
@@ -18,14 +18,15 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.mybatis</groupId>
-            <artifactId>mybatis</artifactId>
-            <scope>provided</scope>
+            <groupId>cn.egd.prodigal</groupId>
+            <artifactId>mybatis-batch</artifactId>
+            <version>${mybatis.batch.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
+            <groupId>org.mybatis.spring.boot</groupId>
+            <artifactId>mybatis-spring-boot-starter</artifactId>
         </dependency>
     </dependencies>
+
 
 </project>

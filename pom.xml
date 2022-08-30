@@ -6,21 +6,39 @@
 	<modules>
 		<module>mybatis-batch</module>
 		<module>sample</module>
-	</modules>
+        <module>mybatis-batch-starter</module>
+    </modules>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>2.7.3</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<relativePath/>
 	</parent>
 	<groupId>cn.egd.prodigal</groupId>
 	<artifactId>mybatisBatch</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>${mybatis.batch.version}</version>
+
 	<name>mybatisBatch</name>
 	<description>Demo project for Spring Boot</description>
+
 	<properties>
 		<java.version>1.8</java.version>
+		<mybatis.batch.version>1.0</mybatis.batch.version>
 	</properties>
 
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.mybatis.spring.boot</groupId>
+				<artifactId>mybatis-spring-boot-starter</artifactId>
+				<version>2.2.2</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mybatis</groupId>
+				<artifactId>mybatis</artifactId>
+				<version>3.5.9</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 </project>

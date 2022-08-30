@@ -1,4 +1,4 @@
-package com.example.demo.repository.mapper;
+package cn.egd.prodigal.sample.repository.mapper;
 
 import java.util.List;
 
@@ -8,8 +8,8 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
-import com.example.demo.mybaits.annotation.BatchInsert;
-import com.example.demo.repository.entity.TestPO;
+import cn.egd.prodigal.sample.mybaits.annotation.BatchInsert;
+import cn.egd.prodigal.sample.repository.entity.TestPO;
 
 @Mapper
 public interface ITestMapper {

@@ -1,4 +1,4 @@
-package com.example.demo.repository;
+package cn.egd.prodigal.sample.test;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,9 +7,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.example.demo.repository.dao.TestBatchDao;
-import com.example.demo.repository.entity.TestPO;
-import com.example.demo.repository.mapper.ITestMapper;
+import cn.egd.prodigal.sample.repository.dao.TestBatchDao;
+import cn.egd.prodigal.sample.repository.entity.TestPO;
+import cn.egd.prodigal.sample.repository.mapper.ITestMapper;
 
 @SpringBootTest
 public class TestRepositoryTest {

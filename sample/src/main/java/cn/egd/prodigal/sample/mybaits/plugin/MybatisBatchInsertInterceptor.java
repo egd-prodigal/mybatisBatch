@@ -1,4 +1,4 @@
-package com.example.demo.mybaits.plugin;
+package cn.egd.prodigal.sample.mybaits.plugin;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
 
-import com.example.demo.mybaits.annotation.BatchInsert;
+import cn.egd.prodigal.sample.mybaits.annotation.BatchInsert;
 
 @Component
 @Intercepts(@Signature(type = Executor.class, method = "update", args = {MappedStatement.class, Object.class}))

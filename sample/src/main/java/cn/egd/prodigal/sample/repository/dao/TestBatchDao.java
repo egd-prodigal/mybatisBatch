@@ -1,4 +1,4 @@
-package com.example.demo.repository.dao;
+package cn.egd.prodigal.sample.repository.dao;
 
 import java.util.List;
 
@@ -8,8 +8,8 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import com.example.demo.repository.entity.TestPO;
-import com.example.demo.repository.mapper.ITestMapper;
+import cn.egd.prodigal.sample.repository.entity.TestPO;
+import cn.egd.prodigal.sample.repository.mapper.ITestMapper;
 
 @Repository
 public class TestBatchDao {

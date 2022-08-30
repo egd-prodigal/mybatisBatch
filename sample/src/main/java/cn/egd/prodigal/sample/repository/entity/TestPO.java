@@ -1,4 +1,4 @@
-package com.example.demo.repository.entity;
+package cn.egd.prodigal.sample.repository.entity;
 
 public class TestPO {
 	

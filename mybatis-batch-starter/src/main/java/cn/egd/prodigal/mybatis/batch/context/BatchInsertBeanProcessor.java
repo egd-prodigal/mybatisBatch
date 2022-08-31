@@ -61,6 +61,8 @@ public class BatchInsertBeanProcessor implements BeanPostProcessor, SmartInitial
                 MappedStatement.Builder builder = new MappedStatement.Builder(configuration, id, rawSqlSource, SqlCommandType.INSERT);
                 configuration.addMappedStatement(builder.build());
                 BatchInsertContext.addBatchInsertMapperStatement(id, batchInsert);
+                builder = new MappedStatement.Builder(configuration, id + ".singleInsert", rawSqlSource, SqlCommandType.INSERT);
+                configuration.addMappedStatement(builder.build());
             } else {
                 throw new BuilderException("batchInsert.sql() must not be blank, please check method: " + id);
             }

@@ -67,7 +67,11 @@ public class BatchInsertInterceptor implements Interceptor {
         int batchSize = batchInsert.batchSize();
         int index = 1;
         for (Object argument : parameterList) {
-            sqlSession.insert(mappedStatement.getId(), argument);
+            if (BatchInsertContext.isInSpring()) {
+                sqlSession.insert(mappedStatement.getId() + ".singleInsert", argument);
+            } else {
+                sqlSession.insert(mappedStatement.getId(), argument);
+            }
             if (index % batchSize == 0) {
                 commitAndClearCache(sqlSession);
             }

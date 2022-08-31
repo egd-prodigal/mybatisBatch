@@ -14,7 +14,7 @@
 		<version>2.7.3</version>
 		<relativePath/>
 	</parent>
-	<groupId>cn.egd.prodigal</groupId>
+	<groupId>io.github.egd-prodigal</groupId>
 	<artifactId>mybatisBatch</artifactId>
 	<version>${mybatis.batch.version}</version>
 

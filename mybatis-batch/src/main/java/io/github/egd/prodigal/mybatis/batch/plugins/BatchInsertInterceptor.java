@@ -13,6 +13,7 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -66,7 +67,13 @@ public class BatchInsertInterceptor implements Interceptor {
         SqlSession sqlSession = getSqlSessionFactory().openSession(ExecutorType.BATCH, false);
         int batchSize = batchInsert.batchSize();
         int index = 1;
+        String paramName = batchInsert.paramName();
         for (Object argument : parameterList) {
+            if (StringUtils.hasText(paramName)) {
+                ParamMap<Object> paramMap = new ParamMap<>();
+                paramMap.put(paramName, argument);
+                argument = paramMap;
+            }
             if (BatchInsertContext.isInSpring()) {
                 sqlSession.insert(mappedStatement.getId() + ".singleInsert", argument);
             } else {

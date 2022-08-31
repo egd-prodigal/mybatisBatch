@@ -1,5 +1,6 @@
 package cn.egd.prodigal.mybatis.batch.config;
 
+import cn.egd.prodigal.mybatis.batch.context.BatchInsertScanner;
 import cn.egd.prodigal.mybatis.batch.plugins.MybatisBatchInsertInterceptor;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.beans.factory.SmartInitializingSingleton;
@@ -19,6 +20,11 @@ public class MybatisBatchConfiguration {
     public SmartInitializingSingleton initMybatisBatchInsertInterceptor(@Autowired SqlSessionFactory sqlSessionFactory,
                                                                         @Autowired MybatisBatchInsertInterceptor interceptor) {
         return () -> interceptor.setSqlSessionFactory(sqlSessionFactory);
+    }
+
+    @Bean
+    public BatchInsertScanner batchInsertScanner() {
+        return new BatchInsertScanner();
     }
 
 }

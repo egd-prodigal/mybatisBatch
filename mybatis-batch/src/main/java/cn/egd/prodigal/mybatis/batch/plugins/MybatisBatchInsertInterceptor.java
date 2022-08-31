@@ -8,7 +8,6 @@ import org.apache.ibatis.plugin.*;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
-import org.springframework.aop.support.AopUtils;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
@@ -43,38 +42,19 @@ public class MybatisBatchInsertInterceptor implements Interceptor {
         }
         Object object = argsObjects[1];
         if (object instanceof ParamMap) {
-            return invokeSingleInsert(id, (ParamMap<?>) object, batchInsert, mapperClass);
+            List<?> parameterList = generateParameterList((ParamMap<?>) object, batchInsert);
+            return invokeSingleInsert(mappedStatement, batchInsert, parameterList);
         } else {
             return invocation.proceed();
         }
     }
 
-    private Object invokeSingleInsert(String id, ParamMap<?> paramMap, BatchInsert batchInsert, Class<?> mapperClass) throws Throwable {
-        List<?> pList;
-        String listParamName = batchInsert.listParamName();
-        if (paramMap.containsKey(listParamName)) {
-            Object o = paramMap.get(listParamName);
-            pList = (List<?>) o;
-        } else {
-            pList = paramMap.values().stream()
-                    .filter(v -> (v instanceof List))
-                    .map(v -> ((List<?>) v))
-                    .findAny().orElseThrow(() -> new PluginException("cannot find argument instance of List"));
-        }
-        String insertMethodName = batchInsert.insert();
-        id = id.substring(0, id.lastIndexOf(".")) + "." + insertMethodName;
-        Method insertMethod = findMapperMethod(id, mapperClass);
-        if (insertMethod == null) {
-            throw new PluginException("cannot find insert method by name: " + insertMethodName);
-        }
+    private Object invokeSingleInsert(MappedStatement mappedStatement, BatchInsert batchInsert, List<?> parameterList) {
         SqlSession sqlSession = getSqlSessionFactory().openSession(ExecutorType.BATCH, false);
-        Object beanObject = sqlSession.getMapper(mapperClass);
         int batchSize = batchInsert.batchSize();
         int index = 1;
-        Object[] args = new Object[1];
-        for (Object argument : pList) {
-            args[0] = argument;
-            AopUtils.invokeJoinpointUsingReflection(beanObject, insertMethod, args);
+        for (Object argument : parameterList) {
+            sqlSession.insert(mappedStatement.getId(), argument);
             if (index % batchSize == 0) {
                 commitAndClearCache(sqlSession);
             }
@@ -82,7 +62,22 @@ public class MybatisBatchInsertInterceptor implements Interceptor {
         }
         commitAndClearCache(sqlSession);
         sqlSession.close();
-        return pList.size();
+        return parameterList.size();
+    }
+
+    private List<?> generateParameterList(ParamMap<?> paramMap, BatchInsert batchInsert) {
+        List<?> parameterList;
+        String listParamName = batchInsert.listParamName();
+        if (paramMap.containsKey(listParamName)) {
+            Object o = paramMap.get(listParamName);
+            parameterList = (List<?>) o;
+        } else {
+            parameterList = paramMap.values().stream()
+                    .filter(v -> (v instanceof List))
+                    .map(v -> ((List<?>) v))
+                    .findAny().orElseThrow(() -> new PluginException("cannot find argument instance of List"));
+        }
+        return parameterList;
     }
 
     private void commitAndClearCache(SqlSession sqlSession) {

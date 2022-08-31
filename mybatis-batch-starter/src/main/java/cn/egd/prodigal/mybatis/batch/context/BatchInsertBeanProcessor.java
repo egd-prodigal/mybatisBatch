@@ -1,6 +1,8 @@
 package cn.egd.prodigal.mybatis.batch.context;
 
 import cn.egd.prodigal.mybatis.batch.annotations.BatchInsert;
+import cn.egd.prodigal.mybatis.batch.core.BatchInsertContext;
+import org.apache.ibatis.builder.BuilderException;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.SqlCommandType;
 import org.apache.ibatis.scripting.defaults.RawSqlSource;
@@ -20,7 +22,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BatchInsertScanner implements BeanPostProcessor, SmartInitializingSingleton, ApplicationContextAware {
+public class BatchInsertBeanProcessor implements BeanPostProcessor, SmartInitializingSingleton, ApplicationContextAware {
     private ApplicationContext applicationContext;
     private final List<Method> methodList = new ArrayList<>();
 
@@ -44,6 +46,7 @@ public class BatchInsertScanner implements BeanPostProcessor, SmartInitializingS
         if (methodList.isEmpty()) {
             return;
         }
+        BatchInsertContext.setInSpring();
         SqlSessionFactory sqlSessionFactory = applicationContext.getBean(SqlSessionFactory.class);
         Configuration configuration = sqlSessionFactory.getConfiguration();
         for (Method method : methodList) {
@@ -57,6 +60,9 @@ public class BatchInsertScanner implements BeanPostProcessor, SmartInitializingS
                 RawSqlSource rawSqlSource = new RawSqlSource(configuration, sql, batchInsert.paramType());
                 MappedStatement.Builder builder = new MappedStatement.Builder(configuration, id, rawSqlSource, SqlCommandType.INSERT);
                 configuration.addMappedStatement(builder.build());
+                BatchInsertContext.addBatchInsertMapperStatement(id, batchInsert);
+            } else {
+                throw new BuilderException("batchInsert.sql() must not be blank, please check method: " + id);
             }
         }
         methodList.clear();

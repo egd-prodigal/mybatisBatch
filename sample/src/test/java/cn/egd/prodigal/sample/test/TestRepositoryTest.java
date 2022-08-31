@@ -58,7 +58,7 @@ public class TestRepositoryTest {
     @Test
     public void batchInsertMapper() {
         deleteAll();
-		int size = 100;
+		int size = 10000000;
         List<TestPO> list = new ArrayList<>();
         for (int i = 0; i < size; i++) {
             TestPO po = new TestPO();
@@ -77,7 +77,7 @@ public class TestRepositoryTest {
     public void batchInsertMapper3() {
         deleteAll();
         List<TestPO> list = new ArrayList<>();
-		int size = 1000000;
+		int size = 10000000;
 		for (int i = 0; i < size; i++) {
             TestPO po = new TestPO();
             po.setId(i + 1);

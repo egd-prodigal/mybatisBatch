@@ -1,9 +1,11 @@
 package cn.egd.prodigal.mybatis.batch.plugins;
 
 import cn.egd.prodigal.mybatis.batch.annotations.BatchInsert;
+import cn.egd.prodigal.mybatis.batch.core.BatchInsertContext;
 import org.apache.ibatis.binding.MapperMethod.ParamMap;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.mapping.MappedStatement;
+import org.apache.ibatis.mapping.SqlCommandType;
 import org.apache.ibatis.plugin.*;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -16,37 +18,48 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 @Intercepts(@Signature(type = Executor.class, method = "update", args = {MappedStatement.class, Object.class}))
-public class MybatisBatchInsertInterceptor implements Interceptor {
+public class BatchInsertInterceptor implements Interceptor {
 
     private SqlSessionFactory sqlSessionFactory;
 
     private final Map<String, Class<?>> mapperClassMap = new HashMap<>();
     private final Map<String, Method> mapperMethodMap = new HashMap<>();
-    private final Map<String, BatchInsert> batchInsertMap = new HashMap<>();
 
     @Override
     public Object intercept(Invocation invocation) throws Throwable {
         Object[] argsObjects = invocation.getArgs();
         MappedStatement mappedStatement = (MappedStatement) argsObjects[0];
-        String id = mappedStatement.getId();
-        Class<?> mapperClass = findMapperClass(id);
-        Method mapperMethod = findMapperMethod(id, mapperClass);
-        if (mapperMethod == null) {
+        if (mappedStatement.getSqlCommandType() != SqlCommandType.INSERT) {
             return invocation.proceed();
         }
-        BatchInsert batchInsert = findBatchInsert(id);
-        if (batchInsert == null) {
-            return invocation.proceed();
+        String id = mappedStatement.getId();
+        BatchInsert batchInsert;
+        if (BatchInsertContext.isInSpring()) {
+            if (BatchInsertContext.isBatchInsertMapperStatement(id)) {
+                batchInsert = BatchInsertContext.getBatchInsertByMapperStatementId(id);
+            } else {
+                return invocation.proceed();
+            }
+        } else {
+            Class<?> mapperClass = findMapperClass(id);
+            Method mapperMethod = findMapperMethod(id, mapperClass);
+            if (mapperMethod == null) {
+                return invocation.proceed();
+            }
+            batchInsert = findBatchInsert(id, mapperMethod);
+            if (batchInsert == null) {
+                return invocation.proceed();
+            }
         }
         Object object = argsObjects[1];
-        if (object instanceof ParamMap) {
-            List<?> parameterList = generateParameterList((ParamMap<?>) object, batchInsert);
-            return invokeSingleInsert(mappedStatement, batchInsert, parameterList);
-        } else {
+        if (!(object instanceof ParamMap)) {
             return invocation.proceed();
         }
+        List<?> parameterList = generateParameterList((ParamMap<?>) object, batchInsert);
+        return invokeSingleInsert(mappedStatement, batchInsert, parameterList);
     }
 
     private Object invokeSingleInsert(MappedStatement mappedStatement, BatchInsert batchInsert, List<?> parameterList) {
@@ -72,10 +85,8 @@ public class MybatisBatchInsertInterceptor implements Interceptor {
             Object o = paramMap.get(listParamName);
             parameterList = (List<?>) o;
         } else {
-            parameterList = paramMap.values().stream()
-                    .filter(v -> (v instanceof List))
-                    .map(v -> ((List<?>) v))
-                    .findAny().orElseThrow(() -> new PluginException("cannot find argument instance of List"));
+            Stream<? extends List<?>> stream = paramMap.values().stream().filter(v -> (v instanceof List)).map(v -> ((List<?>) v));
+            parameterList = stream.findAny().orElseThrow(() -> new PluginException("cannot find argument instance of List"));
         }
         return parameterList;
     }
@@ -119,14 +130,12 @@ public class MybatisBatchInsertInterceptor implements Interceptor {
         return method;
     }
 
-    private BatchInsert findBatchInsert(String id) throws ClassNotFoundException {
-        if (batchInsertMap.containsKey(id)) {
-            return batchInsertMap.get(id);
+    private BatchInsert findBatchInsert(String id, Method mapperMethod) {
+        if (BatchInsertContext.isBatchInsertMapperStatement(id)) {
+            return BatchInsertContext.getBatchInsertByMapperStatementId(id);
         }
-        Class<?> mapperClass = findMapperClass(id);
-        Method mapperMethod = findMapperMethod(id, mapperClass);
         BatchInsert batchInsert = AnnotationUtils.findAnnotation(mapperMethod, BatchInsert.class);
-        batchInsertMap.put(id, batchInsert);
+        BatchInsertContext.addBatchInsertMapperStatement(id, batchInsert);
         return batchInsert;
     }
 

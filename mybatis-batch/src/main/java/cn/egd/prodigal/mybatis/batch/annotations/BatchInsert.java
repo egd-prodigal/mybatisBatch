@@ -31,7 +31,7 @@ public @interface BatchInsert {
     String listParamName() default "collection";
 
     /**
-     * 批量大小，传入的数据，按{@link #batchSize()}的值再分批提交
+     * 批量大小，传入的数据，按该值再分批提交
      * @return int
      */
     int batchSize() default 500;

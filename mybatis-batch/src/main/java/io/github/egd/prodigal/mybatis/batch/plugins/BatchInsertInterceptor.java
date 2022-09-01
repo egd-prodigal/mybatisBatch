@@ -2,14 +2,13 @@ package io.github.egd.prodigal.mybatis.batch.plugins;
 
 import io.github.egd.prodigal.mybatis.batch.annotations.BatchInsert;
 import io.github.egd.prodigal.mybatis.batch.core.BatchInsertContext;
+import io.github.egd.prodigal.mybatis.batch.core.BatchSqlSessionBuilder;
 import org.apache.ibatis.binding.MapperMethod.ParamMap;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.SqlCommandType;
 import org.apache.ibatis.plugin.*;
-import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
@@ -25,7 +24,7 @@ import java.util.stream.Stream;
 @Intercepts(@Signature(type = Executor.class, method = "update", args = {MappedStatement.class, Object.class}))
 public class BatchInsertInterceptor implements Interceptor {
 
-    private SqlSessionFactory sqlSessionFactory;
+    private BatchSqlSessionBuilder batchSqlSessionBuilder;
 
     private final Map<String, Class<?>> mapperClassMap = new HashMap<>();
     private final Map<String, Method> mapperMethodMap = new HashMap<>();
@@ -68,7 +67,7 @@ public class BatchInsertInterceptor implements Interceptor {
     }
 
     private Object invokeSingleInsert(MappedStatement mappedStatement, BatchInsert batchInsert, List<?> itemList, ParamMap<?> paramMap) {
-        SqlSession sqlSession = getSqlSessionFactory().openSession(ExecutorType.BATCH, false);
+        SqlSession sqlSession = openSession();
         int batchSize = batchInsert.batchSize();
         int index = 1;
         String item = batchInsert.item();
@@ -115,14 +114,6 @@ public class BatchInsertInterceptor implements Interceptor {
         sqlSession.clearCache();
     }
 
-    public SqlSessionFactory getSqlSessionFactory() {
-        return sqlSessionFactory;
-    }
-
-    public void setSqlSessionFactory(SqlSessionFactory sqlSessionFactory) {
-        this.sqlSessionFactory = sqlSessionFactory;
-    }
-
     private Class<?> findMapperClass(String id) throws ClassNotFoundException {
         Class<?> aClass = mapperClassMap.get(id);
         if (aClass == null) {
@@ -158,6 +149,10 @@ public class BatchInsertInterceptor implements Interceptor {
         return batchInsert;
     }
 
+    private SqlSession openSession() {
+        return getBatchSqlSessionBuilder().build();
+    }
+
     @Override
     public Object plugin(Object target) {
         return Plugin.wrap(target, this);
@@ -167,4 +162,13 @@ public class BatchInsertInterceptor implements Interceptor {
     public void setProperties(Properties properties) {
 
     }
+
+    public BatchSqlSessionBuilder getBatchSqlSessionBuilder() {
+        return batchSqlSessionBuilder;
+    }
+
+    public void setBatchSqlSessionBuilder(BatchSqlSessionBuilder batchSqlSessionBuilder) {
+        this.batchSqlSessionBuilder = batchSqlSessionBuilder;
+    }
+
 }

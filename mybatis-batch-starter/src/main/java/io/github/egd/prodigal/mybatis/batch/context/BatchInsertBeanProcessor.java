@@ -70,7 +70,7 @@ public class BatchInsertBeanProcessor implements BeanPostProcessor, SmartInitial
         }
         methodList.clear();
         if (getBatchInsertInterceptor() != null) {
-            getBatchInsertInterceptor().setSqlSessionFactory(sqlSessionFactory);
+            getBatchInsertInterceptor().setBatchSqlSessionBuilder(new SpringBatchSqlSessionBuilder(sqlSessionFactory));
             List<Interceptor> interceptors = configuration.getInterceptors();
             boolean b = interceptors.stream().anyMatch(e -> e instanceof BatchInsertInterceptor);
             if (!b) {

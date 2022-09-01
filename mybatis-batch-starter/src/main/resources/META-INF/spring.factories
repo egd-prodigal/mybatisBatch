@@ -1,0 +1,1 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=io.github.egd.prodigal.mybatis.batch.config.MybatisBatchConfiguration

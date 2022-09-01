@@ -9,11 +9,11 @@ import java.lang.annotation.Target;
 
 /**
  * 批量插入注解，与{@link org.apache.ibatis.annotations.Insert}配合使用，添加本注解的插入方法，将被认为是一个批量插入的方法，
- * 本插件将会开启mybatis的批量模式，轮询参数执行单个插入动作，并在满足插入一定数量后提交一次。<br/>
+ * 本插件将会开启mybatis的批量模式，轮询参数执行单个插入动作，并在满足插入一定数量后提交一次。
  *
- * {@link #collection()} ()} 指定方法入参的对象名，与方法参数的{@link Param#value()}的值一致<br/>
- * {@link #item()} 指定sql语句里的实体类的参数名，不写此值可以直接用对应的参数名<br/>
- * {@link #batchSize()} 指定批量一次提交的数据量<br/>
+ * {@link #collection()} ()} 指定方法入参的对象名，与方法参数的{@link Param#value()}的值一致
+ * {@link #item()} 指定sql语句里的实体类的参数名，不写此值可以直接用对应的参数名
+ * {@link #batchSize()} 指定批量一次提交的数据量
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)

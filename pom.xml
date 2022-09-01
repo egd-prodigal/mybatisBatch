@@ -134,4 +134,6 @@
 		</profile>
 	</profiles>
 
+<!-- 发布命令	mvn -U clean deploy -P release -DskipTests -Dgpg.passphrase=这是个只有我知道的密码   -->
+
 </project>

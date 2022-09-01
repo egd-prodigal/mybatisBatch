@@ -63,19 +63,23 @@ public class BatchInsertInterceptor implements Interceptor {
             return invocation.proceed();
         }
         List<?> parameterList = generateParameterList((ParamMap<?>) object, batchInsert);
-        return invokeSingleInsert(mappedStatement, batchInsert, parameterList);
+        return invokeSingleInsert(mappedStatement, batchInsert, parameterList, (ParamMap<?>) object);
     }
 
-    private Object invokeSingleInsert(MappedStatement mappedStatement, BatchInsert batchInsert, List<?> parameterList) {
+    private Object invokeSingleInsert(MappedStatement mappedStatement, BatchInsert batchInsert, List<?> parameterList, ParamMap<?> paramMap) {
         SqlSession sqlSession = getSqlSessionFactory().openSession(ExecutorType.BATCH, false);
         int batchSize = batchInsert.batchSize();
         int index = 1;
         String paramName = batchInsert.paramName();
+        ParamMap<Object> objectParamMap = new ParamMap<>();
+        boolean hasParamName = StringUtils.hasText(paramName);
+        if (hasParamName) {
+            objectParamMap.putAll(paramMap);
+        }
         for (Object argument : parameterList) {
-            if (StringUtils.hasText(paramName)) {
-                ParamMap<Object> paramMap = new ParamMap<>();
-                paramMap.put(paramName, argument);
-                argument = paramMap;
+            if (hasParamName) {
+                objectParamMap.put(paramName, argument);
+                argument = objectParamMap;
             }
             if (BatchInsertContext.isInSpring()) {
                 sqlSession.insert(mappedStatement.getId() + BatchInsertContext.EGD_SINGLE_INSERT, argument);

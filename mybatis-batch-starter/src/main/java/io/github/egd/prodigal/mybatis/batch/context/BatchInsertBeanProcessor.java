@@ -33,7 +33,7 @@ public class BatchInsertBeanProcessor implements BeanPostProcessor, SmartInitial
         if (bean instanceof MapperFactoryBean) {
             MapperFactoryBean<?> mapperFactoryBean = (MapperFactoryBean<?>) bean;
             Class<?> mapperInterface = mapperFactoryBean.getMapperInterface();
-            Method[] declaredMethods = ReflectionUtils.getDeclaredMethods(mapperInterface);
+            Method[] declaredMethods = ReflectionUtils.getAllDeclaredMethods(mapperInterface);
             Arrays.stream(declaredMethods).filter(method ->
                     AnnotationUtils.getAnnotation(method, BatchInsert.class) != null
             ).forEach(methodList::add);

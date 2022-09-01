@@ -136,7 +136,7 @@ public class BatchInsertInterceptor implements Interceptor {
         Method method = mapperMethodMap.get(id);
         if (method == null) {
             String methodName = id.substring(id.lastIndexOf(".") + 1);
-            Method[] methods = ReflectionUtils.getDeclaredMethods(mapperClass);
+            Method[] methods = ReflectionUtils.getAllDeclaredMethods(mapperClass);
             for (Method m : methods) {
                 if (methodName.equals(m.getName())) {
                     method = m;

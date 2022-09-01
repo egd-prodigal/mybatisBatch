@@ -62,23 +62,23 @@ public class BatchInsertInterceptor implements Interceptor {
         if (!(object instanceof ParamMap)) {
             return invocation.proceed();
         }
-        List<?> parameterList = generateParameterList((ParamMap<?>) object, batchInsert);
-        return invokeSingleInsert(mappedStatement, batchInsert, parameterList, (ParamMap<?>) object);
+        List<?> itemList = getItemList((ParamMap<?>) object, batchInsert);
+        return invokeSingleInsert(mappedStatement, batchInsert, itemList, (ParamMap<?>) object);
     }
 
-    private Object invokeSingleInsert(MappedStatement mappedStatement, BatchInsert batchInsert, List<?> parameterList, ParamMap<?> paramMap) {
+    private Object invokeSingleInsert(MappedStatement mappedStatement, BatchInsert batchInsert, List<?> itemList, ParamMap<?> paramMap) {
         SqlSession sqlSession = getSqlSessionFactory().openSession(ExecutorType.BATCH, false);
         int batchSize = batchInsert.batchSize();
         int index = 1;
-        String paramName = batchInsert.paramName();
+        String item = batchInsert.item();
         ParamMap<Object> objectParamMap = new ParamMap<>();
-        boolean hasParamName = StringUtils.hasText(paramName);
+        boolean hasParamName = StringUtils.hasText(item);
         if (hasParamName) {
             objectParamMap.putAll(paramMap);
         }
-        for (Object argument : parameterList) {
+        for (Object argument : itemList) {
             if (hasParamName) {
-                objectParamMap.put(paramName, argument);
+                objectParamMap.put(item, argument);
                 argument = objectParamMap;
             }
             if (BatchInsertContext.isInSpring()) {
@@ -93,20 +93,20 @@ public class BatchInsertInterceptor implements Interceptor {
         }
         commitAndClearCache(sqlSession);
         sqlSession.close();
-        return parameterList.size();
+        return itemList.size();
     }
 
-    private List<?> generateParameterList(ParamMap<?> paramMap, BatchInsert batchInsert) {
-        List<?> parameterList;
-        String listParamName = batchInsert.listParamName();
-        if (paramMap.containsKey(listParamName)) {
-            Object o = paramMap.get(listParamName);
-            parameterList = (List<?>) o;
+    private List<?> getItemList(ParamMap<?> paramMap, BatchInsert batchInsert) {
+        List<?> itemList;
+        String collection = batchInsert.collection();
+        if (paramMap.containsKey(collection)) {
+            Object o = paramMap.get(collection);
+            itemList = (List<?>) o;
         } else {
             Stream<? extends List<?>> stream = paramMap.values().stream().filter(v -> (v instanceof List)).map(v -> ((List<?>) v));
-            parameterList = stream.findAny().orElseThrow(() -> new PluginException("cannot find argument instance of List"));
+            itemList = stream.findAny().orElseThrow(() -> new PluginException("cannot find argument instance of List"));
         }
-        return parameterList;
+        return itemList;
     }
 
     private void commitAndClearCache(SqlSession sqlSession) {

@@ -13,7 +13,7 @@ public interface ITestMapper {
     int insert(@Param("po") TestPO po);
 
     @Insert({"insert into ${table} (id, name)", "values", "(#{po.id}, #{po.name})"})
-    @BatchInsert(paramType = TestPO.class, paramName = "po", listParamName = "testPOS", batchSize = 1000)
+    @BatchInsert(collection = "testPOS", item = "po", batchSize = 1000)
     void batchInsert(@Param("table") String table, @Param("testPOS") List<TestPO> po);
 
     @Insert({"<script>",

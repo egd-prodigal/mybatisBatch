@@ -58,7 +58,7 @@ public class TestRepositoryTest {
     @Test
     public void batchInsertMapper() {
         deleteAll();
-		int size = 100;
+        int size = 100;
         List<TestPO> list = new ArrayList<>();
         for (int i = 0; i < size; i++) {
             TestPO po = new TestPO();
@@ -69,7 +69,7 @@ public class TestRepositoryTest {
         long start = System.currentTimeMillis();
         testMapper.batchInsert(list);
         System.out.println("batch: " + (System.currentTimeMillis() - start));
-//		System.out.println(testMapper.queryAll());
+		System.out.println("count: " + testMapper.count());
     }
 
 
@@ -77,8 +77,8 @@ public class TestRepositoryTest {
     public void batchInsertMapper3() {
         deleteAll();
         List<TestPO> list = new ArrayList<>();
-		int size = 10000000;
-		for (int i = 0; i < size; i++) {
+        int size = 10000000;
+        for (int i = 0; i < size; i++) {
             TestPO po = new TestPO();
             po.setId(i + 1);
             po.setName("yeemin");
@@ -90,9 +90,9 @@ public class TestRepositoryTest {
             testMapper.forEachInsert(list.subList(count, count + 500));
             count += 500;
         }
-		if (count < size) {
-			testMapper.forEachInsert(list.subList(count, size));
-		}
+        if (count < size) {
+            testMapper.forEachInsert(list.subList(count, size));
+        }
         System.out.println("foreach: " + (System.currentTimeMillis() - start));
 //		System.out.println(testMapper.queryAll());
     }

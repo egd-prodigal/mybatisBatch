@@ -12,7 +12,8 @@ public interface ITestMapper {
     @Insert("insert into test (id, name) values (#{po.id}, #{po.name})")
     int insert(@Param("po") TestPO po);
 
-    @BatchInsert(sql = "insert into test (id, name) values (#{po.id}, #{po.name})", paramType = TestPO.class, paramName = "po", listParamName = "testPOS", batchSize = 500)
+    @Insert({"insert into test (id, name)", "values", "(#{po.id}, #{po.name})"})
+    @BatchInsert(paramType = TestPO.class, paramName = "po", listParamName = "testPOS", batchSize = 1000)
     void batchInsert(@Param("testPOS") List<TestPO> po);
 
     @Insert({"<script>",
@@ -32,5 +33,8 @@ public interface ITestMapper {
 
     @Delete("delete from test")
     int deleteAll();
+
+    @Select("select count(*) from test")
+    int count();
 
 }

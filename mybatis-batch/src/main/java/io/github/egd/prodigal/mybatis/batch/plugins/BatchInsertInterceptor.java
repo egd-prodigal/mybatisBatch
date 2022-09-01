@@ -37,6 +37,9 @@ public class BatchInsertInterceptor implements Interceptor {
             return invocation.proceed();
         }
         String id = mappedStatement.getId();
+        if (id.endsWith(BatchInsertContext.EGD_SINGLE_INSERT)) {
+            return invocation.proceed();
+        }
         BatchInsert batchInsert;
         if (BatchInsertContext.isInSpring()) {
             if (BatchInsertContext.isBatchInsertMapperStatement(id)) {
@@ -75,7 +78,7 @@ public class BatchInsertInterceptor implements Interceptor {
                 argument = paramMap;
             }
             if (BatchInsertContext.isInSpring()) {
-                sqlSession.insert(mappedStatement.getId() + ".singleInsert", argument);
+                sqlSession.insert(mappedStatement.getId() + BatchInsertContext.EGD_SINGLE_INSERT, argument);
             } else {
                 sqlSession.insert(mappedStatement.getId(), argument);
             }

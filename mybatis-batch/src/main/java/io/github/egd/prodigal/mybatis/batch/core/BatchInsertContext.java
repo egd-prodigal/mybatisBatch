@@ -31,4 +31,6 @@ public class BatchInsertContext {
         return batchInsertAnnotationMap.get(id);
     }
 
+    public static final String EGD_SINGLE_INSERT = ".egd-singleInsert";
+
 }

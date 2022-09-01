@@ -2,6 +2,7 @@ package io.github.egd.prodigal.mybatis.batch.context;
 
 import io.github.egd.prodigal.mybatis.batch.annotations.BatchInsert;
 import io.github.egd.prodigal.mybatis.batch.core.BatchInsertContext;
+import io.github.egd.prodigal.mybatis.batch.plugins.BatchInsertInterceptor;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.SqlCommandType;
 import org.apache.ibatis.mapping.SqlSource;
@@ -24,6 +25,8 @@ import java.util.List;
 public class BatchInsertBeanProcessor implements BeanPostProcessor, SmartInitializingSingleton, ApplicationContextAware {
     private ApplicationContext applicationContext;
     private final List<Method> methodList = new ArrayList<>();
+
+    private BatchInsertInterceptor batchInsertInterceptor;
 
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
@@ -65,10 +68,22 @@ public class BatchInsertBeanProcessor implements BeanPostProcessor, SmartInitial
             }
         }
         methodList.clear();
+        if (getBatchInsertInterceptor() != null) {
+            getBatchInsertInterceptor().setSqlSessionFactory(sqlSessionFactory);
+        }
     }
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
     }
+
+    public BatchInsertInterceptor getBatchInsertInterceptor() {
+        return batchInsertInterceptor;
+    }
+
+    public void setBatchInsertInterceptor(BatchInsertInterceptor batchInsertInterceptor) {
+        this.batchInsertInterceptor = batchInsertInterceptor;
+    }
+
 }

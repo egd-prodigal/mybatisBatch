@@ -6,6 +6,7 @@ import io.github.egd.prodigal.mybatis.batch.plugins.BatchInsertInterceptor;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.SqlCommandType;
 import org.apache.ibatis.mapping.SqlSource;
+import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.mapper.MapperFactoryBean;
@@ -70,6 +71,11 @@ public class BatchInsertBeanProcessor implements BeanPostProcessor, SmartInitial
         methodList.clear();
         if (getBatchInsertInterceptor() != null) {
             getBatchInsertInterceptor().setSqlSessionFactory(sqlSessionFactory);
+            List<Interceptor> interceptors = configuration.getInterceptors();
+            boolean b = interceptors.stream().anyMatch(e -> e instanceof BatchInsertInterceptor);
+            if (!b) {
+                configuration.addInterceptor(getBatchInsertInterceptor());
+            }
         }
     }
 

@@ -8,7 +8,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 批量插入注解，与{@link org.apache.ibatis.annotations.Insert}作用类似，使用本注解的方法，将被认为是一个批量插入的方法，
+ * 批量插入注解，与{@link org.apache.ibatis.annotations.Insert}配合使用，添加本注解的插入方法，将被认为是一个批量插入的方法，
  * 本插件将会开启mybatis的批量模式，轮询参数执行单个插入动作，并在满足插入一定数量后提交一次。<br/>
  * {@link #paramType()} 指定实体类的类型，必须要有<br/>
  * {@link #paramName()} 指定sql语句里的实体类的参数名，不写此值可以直接用对应的参数名<br/>

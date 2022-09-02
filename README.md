@@ -3,7 +3,8 @@ Batch Insert for Mybatis
 Mybatis 批量插入插件，提供更简化的批量insert插件
 
 ## 使用方式
-增加依赖
+### **springboot** 项目 
+增加如下依赖：
 ```xml
 <dependency>
   <groupId>io.github.egd-prodigal</groupId>
@@ -29,3 +30,6 @@ void batchInsert(@Param("testPOS") List<TestPO> po);
 void forEachInsert(@Param("testPOS") List<TestPO> po);
 ```
 实测batch方式性能更佳
+
+### 非 **springboot** 项目 
+ 配置插件，增加 _BatchInsertInterceptor_ 插件，注意一定要配置插件的 _batchSqlSessionBuilder_ 为 _DefaultBatchSqlSessionBuilder_

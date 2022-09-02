@@ -12,7 +12,7 @@ Mybatis 批量插入插件，提供更简化的批量insert插件
 </dependency>
 ```
 
-在Mapper的批量插入方法上加上注解**@BatchInsert**，注解参数_collection_表示方法入参的集合对象，注解参数_item_表示sql里的参数对象，_batchSize_表示批量提交的数量，如下所示：
+在Mapper的批量插入方法上加上注解 **@BatchInsert** ，注解参数 _collection_ 表示方法入参的集合对象，注解参数 _item_ 表示sql里的参数对象，_batchSize_ 表示批量提交的数量，如下所示：
 ```java
 @Insert({"insert into test (id, name)", "values", "(#{po.id}, #{po.name})"})
 @BatchInsert(collection = "testPOS", item = "po", batchSize = 1000)

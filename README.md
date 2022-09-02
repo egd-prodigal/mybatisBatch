@@ -1,5 +1,6 @@
 # mybatisBatch
 Batch Insert for Mybatis
+Mybatis 批量插入插件，提供更简化的批量insert插件
 
 ## 使用方式
 增加依赖

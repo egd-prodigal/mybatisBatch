@@ -20,12 +20,12 @@ void batchInsert(@Param("testPOS") List<TestPO> po);
 ```
 上面的代码功能与下面的一致：
 ```java
-    @Insert({"<script>",
-            "insert into test(id, name) values ",
-            "<foreach collection='testPOS' index='index' item='po' separator=','>",
-            "(#{po.id}, #{po.name})",
-            "</foreach>",
-            "</script>"})
-    void forEachInsert(@Param("testPOS") List<TestPO> po);
+@Insert({"<script>",
+        "insert into test(id, name) values ",
+        "<foreach collection='testPOS' index='index' item='po' separator=','>",
+        "(#{po.id}, #{po.name})",
+        "</foreach>",
+        "</script>"})
+void forEachInsert(@Param("testPOS") List<TestPO> po);
 ```
 实测batch方式性能更佳

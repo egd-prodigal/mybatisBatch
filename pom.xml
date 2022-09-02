@@ -19,7 +19,20 @@
 	<version>${mybatis.batch.version}</version>
 
 	<name>mybatisBatch</name>
-	<description>Demo project for Spring Boot</description>
+	<description>Batch Insert for Mybatis</description>
+
+	<developers>
+		<developer>
+			<id>1</id>
+			<name>生一鸣</name>
+			<email>yeeminshon@outlook.com</email>
+			<url>https://yeemin.site</url>
+			<roles>
+				<role>manager</role>
+				<role>developer</role>
+			</roles>
+		</developer>
+	</developers>
 
 	<properties>
 		<java.version>1.8</java.version>

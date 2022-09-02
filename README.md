@@ -10,3 +10,21 @@ Batch Insert for Mybatis
   <version>1.0</version>
 </dependency>
 ```
+
+在Mapper的批量插入方法上加上注解**@BatchInsert**，注解参数_collection_表示方法入参的集合对象，注解参数_item_表示sql里的参数对象，_batchSize_表示批量提交的数量，如下所示：
+```java
+@Insert({"insert into test (id, name)", "values", "(#{po.id}, #{po.name})"})
+@BatchInsert(collection = "testPOS", item = "po", batchSize = 1000)
+void batchInsert(@Param("testPOS") List<TestPO> po);
+```
+上面的代码功能与下面的一致：
+```java
+    @Insert({"<script>",
+            "insert into test(id, name) values ",
+            "<foreach collection='testPOS' index='index' item='po' separator=','>",
+            "(#{po.id}, #{po.name})",
+            "</foreach>",
+            "</script>"})
+    void forEachInsert(@Param("testPOS") List<TestPO> po);
+```
+实测batch方式性能更佳

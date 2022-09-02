@@ -12,9 +12,9 @@ public interface ITestMapper {
     @Insert("insert into test (id, name) values (#{po.id}, #{po.name})")
     int insert(@Param("po") TestPO po);
 
-    @Insert({"insert into ${table} (id, name)", "values", "(#{po.id}, #{po.name})"})
+    @Insert({"insert into test (id, name)", "values", "(#{po.id}, #{po.name})"})
     @BatchInsert(collection = "testPOS", item = "po", batchSize = 1000)
-    void batchInsert(@Param("table") String table, @Param("testPOS") List<TestPO> po);
+    void batchInsert(@Param("testPOS") List<TestPO> po);
 
     @Insert({"<script>",
             "insert into test(id, name) values ",
@@ -22,7 +22,7 @@ public interface ITestMapper {
             "(#{po.id}, #{po.name})",
             "</foreach>",
             "</script>"})
-    int forEachInsert(@Param("testPOS") List<TestPO> po);
+    void forEachInsert(@Param("testPOS") List<TestPO> po);
 
     //	不知道这玩意怎么用
     @Insert.List(@Insert("insert into test (id, name) values (#{id}, #{name})"))

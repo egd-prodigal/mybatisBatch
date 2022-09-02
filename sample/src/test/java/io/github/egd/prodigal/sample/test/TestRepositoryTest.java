@@ -67,7 +67,7 @@ public class TestRepositoryTest {
             list.add(po);
         }
         long start = System.currentTimeMillis();
-        testMapper.batchInsert("test", list);
+        testMapper.batchInsert(list);
         System.out.println("batch: " + (System.currentTimeMillis() - start));
 		System.out.println("count: " + testMapper.count());
     }

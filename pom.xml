@@ -32,6 +32,15 @@
 				<role>developer</role>
 			</roles>
 		</developer>
+		<developer>
+			<id>2</id>
+			<name>宋祥富</name>
+			<email>784413317@qq.com</email>
+			<roles>
+				<role>manager</role>
+				<role>developer</role>
+			</roles>
+		</developer>
 	</developers>
 
 	<properties>

@@ -36,7 +36,22 @@ void batchInsert(@Param("testPOS") List<TestPO> po);
 void forEachInsert(@Param("testPOS") List<TestPO> po);
 ```
 
-除了基于 **@Insert** 注解的编程方式，还支持 **@InsertProvider** 和 **xml** 的方式，只需在对应的Mapper接口的方法上增加 **@BatchInsert** 注解即可。
+除了基于 **@Insert** 注解的编程方式，还支持 **@InsertProvider** 和 **xml** 的方式，只需在对应的Mapper接口的方法上增加 **@BatchInsert** 注解即可。  
+另外， **@BatchInsert ** 还提供了一个参数 _insert_ ，用以指明单条保存的方法，这样批量保存方法可以不用写@Insert以及sql代码，使用方式如下所示：
+```java
+...
+@Insert({"insert into test (id, name)", "values", "(#{po.id}, #{po.name})"})
+void insertOne(@Param("po") TestPO po);
+
+// 这个方法可以不写@Insert注解了，insertOne指上面的那个方法
+// 方法入参集合的对象类型可以不用跟insertOne一直，只要拥有必要的属性就行
+// item必须要insertOne里配置的一致
+@BatchInsert(insert="insertOne", collection = "testPOS", item = "po", batchSize = 1000)
+void batchInsert(@Param("testPOS") List<TestPO> po);
+...
+```
+**@BatchInsert** 注解使用时，如果指定了 _insert_ 参数的同时，方法也拥有 **@Insert** 注解，取 _insert_ 参数配置的方法。  
+启动时不会检查正确性，如果编写有误，将会在执行时抛出相应异常。
 
 > 注意：由于本项目的批量是基于Mybatis的BATCH模式，并自行提交，所以 **不要在强事务性业务使用本插件** ，遇到问题后果自负。  
 > 建议在各种 _异步批量保存_ 的场景下使用。

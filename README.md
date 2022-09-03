@@ -9,7 +9,7 @@ Mybatis 批量插入插件，提供更简化的批量insert插件
 <dependency>
   <groupId>io.github.egd-prodigal</groupId>
   <artifactId>mybatis-batch-starter</artifactId>
-  <version>1.0</version>
+  <version>${mybatis.batch.version}</version>
 </dependency>
 ```
 

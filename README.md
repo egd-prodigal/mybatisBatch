@@ -1,6 +1,6 @@
 # mybatisBatch
 
-Batch Insert for Mybatis Mybatis 批量插入插件，提供更简化的批量insert插件
+Batch Insert for Mybatis Mybatis 批量保存插件，提供更简化的批量insert插件
 
 ## 使用方式
 
@@ -12,7 +12,7 @@ Batch Insert for Mybatis Mybatis 批量插入插件，提供更简化的批量in
 <dependency>
   <groupId>io.github.egd-prodigal</groupId>
   <artifactId>mybatis-batch-starter</artifactId>
-  <version>1.0.1</version>
+  <version>1.1.1</version>
 </dependency>
 ```
 
@@ -39,11 +39,40 @@ void forEachInsert(@Param("testPOS") List<TestPO> po);
 除了基于 **@Insert** 注解的编程方式，还支持 **@InsertProvider** 和 **xml** 的方式，只需在对应的Mapper接口的方法上增加 **@BatchInsert** 注解即可。
 
 > 注意：由于本项目的批量是基于Mybatis的BATCH模式，并自行提交，所以 **不要在强事务性业务使用本插件** ，遇到问题后果自负。  
-> 建议在各种 _异步批量写_ 的场景下使用。
+> 建议在各种 _异步批量保存_ 的场景下使用。
 
 ### 非 **springboot** 项目
 
-配置插件，增加 _BatchInsertInterceptor_ 插件，注意一定要配置插件的 _batchSqlSessionBuilder_ 为 _DefaultBatchSqlSessionBuilder_
+增加如下依赖
+```xml
+<dependency>
+  <groupId>io.github.egd-prodigal</groupId>
+  <artifactId>mybatis-batch</artifactId>
+  <version>1.1.1</version>
+</dependency>
+```
+在配置文件 **mybatis-config.xml** （也可以是其他文件名）里增加插件配置：
+```xml
+...
+
+<plugins>
+    <plugin interceptor="io.github.egd.prodigal.mybatis.batch.plugins.BatchInsertInterceptor"/>
+</plugins>
+
+...
+```
+如果是spring项目，基于javaConfig装配的Bean，可以在手动装配SqlSessionFaction的地方直接添加intercepter，注意手动设置batchSqlSessionBuilder。
+
+编写mybatis初始化代码，基于xml配置生成SqlSessionFactory，然后添加如下代码：
+```java
+// 此处的sqlSessionFactory在上面生成
+BatchInsertContext.setSqlSessionFactory(sqlSessionFactory);
+// 添加拥有批量保存方法，相信此类场景不会太多，addClass和scan可以在任意位置调用
+BatchInsertScanner.addClass(ITestMapper.class);
+// 扫描批量保存方法，可以在任意位置任何使用调用，每次调用都只会扫描上次调用scan之后调用addClass添加的新的Mapper接口类
+BatchInsertScanner.scan();
+```
+然后就可以使用本插件编写批量保存方法了，如果是spring项目，也需要编写上面几行代码，这类场景较少，赞不提供更便利的方式。
 
 ### 性能测试
 

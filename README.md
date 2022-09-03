@@ -29,7 +29,7 @@ void batchInsert(@Param("testPOS") List<TestPO> po);
         "</script>"})
 void forEachInsert(@Param("testPOS") List<TestPO> po);
 ```
-
+除了基于 **@Insert** 注解的编程方式，还支持 **@InsertProvider** 和 **xml** 的方式，只需在对应的Mapper接口的方法上增加 **@BatchInsert** 注解即可。
 
 > 注意：由于本项目的批量是基于Mybatis的BATCH模式，并自行提交，所以 **不要在强事务性业务使用本插件** ，遇到问题后果自负。  
 > 建议在各种 _异步批量写_ 的场景下使用。

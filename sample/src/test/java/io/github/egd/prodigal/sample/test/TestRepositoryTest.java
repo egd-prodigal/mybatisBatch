@@ -71,7 +71,7 @@ public class TestRepositoryTest {
 //        testMapper.providerBatchInsert(list);
 //        testMapper.xmlBatchInsert(list);
         System.out.println("batch: " + (System.currentTimeMillis() - start));
-		System.out.println("count: " + testMapper.count());
+        System.out.println("count: " + testMapper.count());
     }
 
 
@@ -114,7 +114,7 @@ public class TestRepositoryTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        System.out.println(testMapper.queryAll());
+        System.out.println(testMapper.count());
     }
 
 

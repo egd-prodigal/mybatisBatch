@@ -5,7 +5,8 @@
 <mapper namespace="io.github.egd.prodigal.sample.repository.mapper.ITestMapper">
 
     <insert id="xmlBatchInsert" parameterType="io.github.egd.prodigal.sample.repository.entity.TestPO">
-        insert into test (id, name) values (#{po.id}, #{po.name})
+        insert into test (id, name)
+        values (#{po.id}, #{po.name})
     </insert>
 
 </mapper>

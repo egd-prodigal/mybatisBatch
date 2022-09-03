@@ -1,0 +1,103 @@
+package io.github.egd.prodigal.mybatis.batch.core;
+
+import io.github.egd.prodigal.mybatis.batch.annotations.BatchInsert;
+import org.apache.ibatis.mapping.MappedStatement;
+import org.apache.ibatis.mapping.SqlCommandType;
+import org.apache.ibatis.plugin.PluginException;
+import org.apache.ibatis.session.Configuration;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.util.ReflectionUtils;
+
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
+/**
+ * 批量保存注册扫描器
+ */
+public class BatchInsertScanner {
+
+    /**
+     * Mapper类集合
+     */
+    private static final Set<Class<?>> mapperClasses = new HashSet<>();
+
+    /**
+     * 批量保存方法集合
+     */
+    private static final Set<Method> mapperMethods = new HashSet<>();
+
+    /**
+     * 添加Mapper接口类
+     *
+     * @param clazz 接口类
+     */
+    public static void addClass(Class<?> clazz) {
+        if (clazz.isInterface()) {
+            mapperClasses.add(clazz);
+        } else {
+            throw new PluginException("clazz is not interface");
+        }
+    }
+
+    /**
+     * 添加批量保存方法
+     *
+     * @param method 批量保存方法
+     */
+    public static void addMethod(Method method) {
+        if (AnnotationUtils.getAnnotation(method, BatchInsert.class) != null) {
+            mapperMethods.add(method);
+        }
+    }
+
+    /**
+     * 扫描
+     */
+    public static void scan() {
+        // 先从注册的Mapper接口类获取批量保存的方法
+        if (!mapperClasses.isEmpty()) {
+            mapperClasses.forEach(clazz -> {
+                Method[] declaredMethods = ReflectionUtils.getAllDeclaredMethods(clazz);
+                Arrays.stream(declaredMethods).filter(method ->
+                        AnnotationUtils.getAnnotation(method, BatchInsert.class) != null
+                ).forEach(mapperMethods::add);
+            });
+        }
+        mapperClasses.clear();
+        SqlSessionFactory sqlSessionFactory = BatchInsertContext.getSqlSessionFactory();
+        Configuration configuration = sqlSessionFactory.getConfiguration();
+        // 遍历方法注册MappedStatement
+        for (Method mapperMethod : mapperMethods) {
+            BatchInsert batchInsert = AnnotationUtils.findAnnotation(mapperMethod, BatchInsert.class);
+            // 不可能为空
+            if (batchInsert == null) {
+                continue;
+            }
+            // 当前批量保存的mappedStatementId
+            String mappedStatementId = mapperMethod.getDeclaringClass().getName() + "." + mapperMethod.getName();
+            if (configuration.hasStatement(mappedStatementId)) {
+                // 已经有了，说明本方法已经装配成MappedStatement了
+                MappedStatement mappedStatement = configuration.getMappedStatement(mappedStatementId);
+                if (SqlCommandType.INSERT.equals(mappedStatement.getSqlCommandType())) {
+                    // 只注册保存的语句
+                    BatchInsertContext.addBatchInsertMappedStatement(mappedStatementId, batchInsert);
+                    BatchInsertContext.registerSingleInsertMappedStatement(mappedStatementId, batchInsert);
+                }
+            } else {
+                // 没有，说明本方法可能没有Insert注解，但是指定了insert方法，这里需要注册批量保存方法
+                BatchInsertContext.addBatchInsertMappedStatement(mappedStatementId, batchInsert);
+                BatchInsertContext.registerBatchInsertMappedStatement(mapperMethod, batchInsert);
+            }
+        }
+        mapperMethods.clear();
+        if (!BatchInsertContext.isInSpring()) {
+            // 非spring环境下初始化拦截器的SqlSessionBuilder
+            BatchInsertContext.initSqlSessionBuilder();
+        }
+    }
+
+
+}

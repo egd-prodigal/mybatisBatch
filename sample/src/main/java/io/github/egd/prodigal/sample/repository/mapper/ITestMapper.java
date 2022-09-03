@@ -24,6 +24,14 @@ public interface ITestMapper {
             "</script>"})
     void forEachInsert(@Param("testPOS") List<TestPO> po);
 
+    @Insert({"<script>",
+            "insert into test(id, name) ",
+            "<foreach collection='testPOS' index='index' item='po' open='(' close=')' separator='union all'>",
+            "select #{po.id}, #{po.name} from dual",
+            "</foreach>",
+            "</script>"})
+    void forEachInsertOracle(@Param("testPOS") List<TestPO> po);
+
     //	不知道这玩意怎么用
     @Insert.List(@Insert("insert into test (id, name) values (#{id}, #{name})"))
     int batchInsert2(List<TestPO> po);

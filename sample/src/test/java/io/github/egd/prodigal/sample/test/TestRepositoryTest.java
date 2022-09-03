@@ -55,10 +55,11 @@ public class TestRepositoryTest {
         System.out.println(list);
     }
 
+    int size = 1000000;
+
     @Test
     public void batchInsertMapper() {
         deleteAll();
-        int size = 100;
         List<TestPO> list = new ArrayList<>();
         for (int i = 0; i < size; i++) {
             TestPO po = new TestPO();
@@ -77,7 +78,6 @@ public class TestRepositoryTest {
     public void batchInsertMapper3() {
         deleteAll();
         List<TestPO> list = new ArrayList<>();
-        int size = 10000000;
         for (int i = 0; i < size; i++) {
             TestPO po = new TestPO();
             po.setId(i + 1);
@@ -86,15 +86,40 @@ public class TestRepositoryTest {
         }
         long start = System.currentTimeMillis();
         int count = 0;
-        while (count + 500 < size) {
-            testMapper.forEachInsert(list.subList(count, count + 500));
-            count += 500;
+        int pageSize = 1000;
+        while (count + pageSize < size) {
+            testMapper.forEachInsert(list.subList(count, count + pageSize));
+            count += pageSize;
         }
         if (count < size) {
             testMapper.forEachInsert(list.subList(count, size));
         }
         System.out.println("foreach: " + (System.currentTimeMillis() - start));
-//		System.out.println(testMapper.queryAll());
+		System.out.println("count: " + testMapper.count());
+    }
+
+    @Test
+    public void batchInsertMapperOracle() {
+        deleteAll();
+        List<TestPO> list = new ArrayList<>();
+        for (int i = 0; i < size; i++) {
+            TestPO po = new TestPO();
+            po.setId(i + 1);
+            po.setName("yeemin");
+            list.add(po);
+        }
+        long start = System.currentTimeMillis();
+        int count = 0;
+        int pageSize = 1000;
+        while (count + pageSize < size) {
+            testMapper.forEachInsertOracle(list.subList(count, count + pageSize));
+            count += pageSize;
+        }
+        if (count < size) {
+            testMapper.forEachInsertOracle(list.subList(count, size));
+        }
+        System.out.println("foreach: " + (System.currentTimeMillis() - start));
+        System.out.println("count: " + testMapper.count());
     }
 
     @Test

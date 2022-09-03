@@ -37,7 +37,7 @@ void forEachInsert(@Param("testPOS") List<TestPO> po);
 ```
 
 除了基于 **@Insert** 注解的编程方式，还支持 **@InsertProvider** 和 **xml** 的方式，只需在对应的Mapper接口的方法上增加 **@BatchInsert** 注解即可。  
-另外， **@BatchInsert ** 还提供了一个参数 _insert_ ，用以指明单条保存的方法，这样批量保存方法可以不用写@Insert以及sql代码，使用方式如下所示：
+另外，**@BatchInsert** 还提供了一个参数 _insert_ ，用以指明单条保存的方法，这样批量保存方法可以不用写@Insert以及sql代码，使用方式如下所示：
 ```java
 ...
 @Insert({"insert into test (id, name)", "values", "(#{po.id}, #{po.name})"})

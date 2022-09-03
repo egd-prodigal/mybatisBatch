@@ -67,32 +67,32 @@ public class BatchInsertInterceptor implements Interceptor {
     }
 
     private Object invokeSingleInsert(MappedStatement mappedStatement, BatchInsert batchInsert, List<?> itemList, ParamMap<?> paramMap) {
-        SqlSession sqlSession = openSession();
-        int batchSize = batchInsert.batchSize();
-        int index = 1;
-        String item = batchInsert.item();
-        ParamMap<Object> objectParamMap = new ParamMap<>();
-        boolean hasParamName = StringUtils.hasText(item);
-        if (hasParamName) {
-            objectParamMap.putAll(paramMap);
-        }
-        for (Object argument : itemList) {
+        try (SqlSession sqlSession = openSession()) {
+            int batchSize = batchInsert.batchSize();
+            int index = 1;
+            String item = batchInsert.item();
+            ParamMap<Object> objectParamMap = new ParamMap<>();
+            boolean hasParamName = StringUtils.hasText(item);
             if (hasParamName) {
-                objectParamMap.put(item, argument);
-                argument = objectParamMap;
+                objectParamMap.putAll(paramMap);
             }
-            if (BatchInsertContext.isInSpring()) {
-                sqlSession.insert(mappedStatement.getId() + BatchInsertContext.EGD_SINGLE_INSERT, argument);
-            } else {
-                sqlSession.insert(mappedStatement.getId(), argument);
+            for (Object argument : itemList) {
+                if (hasParamName) {
+                    objectParamMap.put(item, argument);
+                    argument = objectParamMap;
+                }
+                if (BatchInsertContext.isInSpring()) {
+                    sqlSession.insert(mappedStatement.getId() + BatchInsertContext.EGD_SINGLE_INSERT, argument);
+                } else {
+                    sqlSession.insert(mappedStatement.getId(), argument);
+                }
+                if (index % batchSize == 0) {
+                    sqlSession.flushStatements();
+                }
+                index++;
             }
-            if (index % batchSize == 0) {
-                commitAndClearCache(sqlSession);
-            }
-            index++;
+            commitAndClearCache(sqlSession);
         }
-        commitAndClearCache(sqlSession);
-        sqlSession.close();
         return itemList.size();
     }
 

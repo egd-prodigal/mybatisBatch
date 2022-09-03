@@ -69,7 +69,8 @@ void forEachInsert(@Param("testPOS") List<TestPO> po);
 BatchInsertContext.setSqlSessionFactory(sqlSessionFactory);
 // 添加拥有批量保存方法，相信此类场景不会太多，addClass和scan可以在任意位置调用
 BatchInsertScanner.addClass(ITestMapper.class);
-// 扫描批量保存方法，可以在任意位置任何使用调用，每次调用都只会扫描上次调用scan之后调用addClass添加的新的Mapper接口类
+// 扫描批量保存方法，可以在任意位置任何使用调用，
+// 每次调用都只会扫描上次调用scan之后调用addClass添加的新的Mapper接口类
 BatchInsertScanner.scan();
 ```
 然后就可以使用本插件编写批量保存方法了，如果是spring项目，也需要编写上面几行代码。这类场景较少，暂不提供更便利的方式。

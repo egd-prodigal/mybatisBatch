@@ -9,10 +9,6 @@ import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.SqlCommandType;
 import org.apache.ibatis.plugin.*;
 import org.apache.ibatis.session.SqlSession;
-import org.springframework.core.annotation.AnnotationUtils;
-import org.springframework.util.ClassUtils;
-import org.springframework.util.ReflectionUtils;
-import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Method;
 import java.util.Collection;
@@ -124,7 +120,7 @@ public class BatchInsertInterceptor implements Interceptor {
             ParamMap<Object> objectParamMap = new ParamMap<>();
             // 判断是否指定了单个对象的名字
             String item = batchInsert.item();
-            boolean hasItemName = StringUtils.hasText(item);
+            boolean hasItemName = !"".equals(item);
             if (hasItemName) {
                 // 指定了单个对象名字，则入参一定是objectParamMap
                 objectParamMap.putAll(paramMap);
@@ -133,7 +129,7 @@ public class BatchInsertInterceptor implements Interceptor {
             String statement;
             String insert = batchInsert.insert();
             String mappedStatementId = mappedStatement.getId();
-            if (StringUtils.hasText(insert)) {
+            if (!"".equals(insert)) {
                 // 截去方法名，替换成指定的单条保存方法名
                 statement = mappedStatementId.substring(0, mappedStatementId.lastIndexOf(".") + 1) + insert;
             } else {
@@ -204,7 +200,7 @@ public class BatchInsertInterceptor implements Interceptor {
         Class<?> aClass = mapperClassMap.get(id);
         if (aClass == null) {
             String mapperClassName = id.substring(0, id.lastIndexOf("."));
-            aClass = ClassUtils.forName(mapperClassName, getClass().getClassLoader());
+            aClass = Class.forName(mapperClassName);
             mapperClassMap.put(id, aClass);
         }
         return aClass;
@@ -221,7 +217,7 @@ public class BatchInsertInterceptor implements Interceptor {
         Method method = mapperMethodMap.get(id);
         if (method == null) {
             String methodName = id.substring(id.lastIndexOf(".") + 1);
-            Method[] methods = ReflectionUtils.getAllDeclaredMethods(mapperClass);
+            Method[] methods = mapperClass.getDeclaredMethods();
             for (Method m : methods) {
                 if (methodName.equals(m.getName())) {
                     method = m;
@@ -248,7 +244,7 @@ public class BatchInsertInterceptor implements Interceptor {
             return BatchInsertContext.getBatchInsertByMappedStatementId(id);
         }
         // 手动尝试获取BatchInsert注解
-        BatchInsert batchInsert = AnnotationUtils.findAnnotation(mapperMethod, BatchInsert.class);
+        BatchInsert batchInsert = mapperMethod.getAnnotation(BatchInsert.class);
         if (batchInsert != null) {
             // 本方法拥有BatchInsert注解，注册它成为一个批量保存方法
             BatchInsertContext.addBatchInsertMappedStatement(id, batchInsert);

@@ -8,8 +8,6 @@ import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.plugin.PluginException;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSessionFactory;
-import org.springframework.core.annotation.AnnotationUtils;
-import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -51,7 +49,7 @@ public class BatchInsertScanner {
      * @param method 批量保存方法
      */
     public static void addMethod(Method method) {
-        if (AnnotationUtils.getAnnotation(method, BatchInsert.class) != null) {
+        if (method.getAnnotation(BatchInsert.class) != null) {
             mapperMethods.add(method);
         }
     }
@@ -63,10 +61,8 @@ public class BatchInsertScanner {
         // 先从注册的Mapper接口类获取批量保存的方法
         if (!mapperClasses.isEmpty()) {
             mapperClasses.forEach(clazz -> {
-                Method[] declaredMethods = ReflectionUtils.getAllDeclaredMethods(clazz);
-                Arrays.stream(declaredMethods).filter(method ->
-                        AnnotationUtils.getAnnotation(method, BatchInsert.class) != null
-                ).forEach(mapperMethods::add);
+                Method[] declaredMethods = clazz.getDeclaredMethods();
+                Arrays.stream(declaredMethods).filter(method -> method.getAnnotation(BatchInsert.class) != null).forEach(mapperMethods::add);
             });
         }
         mapperClasses.clear();
@@ -74,7 +70,7 @@ public class BatchInsertScanner {
         Configuration configuration = sqlSessionFactory.getConfiguration();
         // 遍历方法注册MappedStatement
         for (Method mapperMethod : mapperMethods) {
-            BatchInsert batchInsert = AnnotationUtils.findAnnotation(mapperMethod, BatchInsert.class);
+            BatchInsert batchInsert = mapperMethod.getAnnotation(BatchInsert.class);
             // 不可能为空
             if (batchInsert == null) {
                 continue;

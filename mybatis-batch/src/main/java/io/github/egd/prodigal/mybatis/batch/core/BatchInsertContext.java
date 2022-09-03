@@ -7,7 +7,6 @@ import org.apache.ibatis.mapping.SqlSource;
 import org.apache.ibatis.plugin.PluginException;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSessionFactory;
-import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -115,7 +114,7 @@ public class BatchInsertContext {
      */
     public synchronized static void registerSingleInsertMappedStatement(String id, BatchInsert batchInsert) {
         Configuration configuration = sqlSessionFactory.getConfiguration();
-        boolean hasInsert = StringUtils.hasText(batchInsert.insert());
+        boolean hasInsert = !"".equals(batchInsert.insert());
         if (!hasInsert) {
             // 有insert表示这是指定其他方法的情况，不需要额外注册单条保存的MappedStatement了
             String singleMappedStatementInsertId = id + BatchInsertContext.EGD_SINGLE_INSERT;

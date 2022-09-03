@@ -3,15 +3,9 @@
         PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-config.dtd">
 <configuration>
-    
-    <properties>
-        <property name="batchSqlSessionBuilder" value="io.github.egd.prodigal.mybatis.batch.core.DefaultBatchSqlSessionBuilder"/>
-    </properties>
-    
+
     <plugins>
-        <plugin interceptor="io.github.egd.prodigal.mybatis.batch.plugins.BatchInsertInterceptor">
-            <property name="batchSqlSessionBuilder" value="${batchSqlSessionBuilder}"/>
-        </plugin>
+        <plugin interceptor="io.github.egd.prodigal.mybatis.batch.plugins.BatchInsertInterceptor"/>
     </plugins>
 
     <environments default="development">

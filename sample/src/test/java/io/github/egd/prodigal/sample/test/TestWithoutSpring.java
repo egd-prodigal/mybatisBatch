@@ -25,8 +25,8 @@ public class TestWithoutSpring {
         String resource = "nospring/mybatis-config.xml";
         InputStream inputStream = Resources.getResourceAsStream(resource);
         SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
-        BatchInsertContext.setSqlSessionFactory(sqlSessionFactory);
 
+        BatchInsertContext.setSqlSessionFactory(sqlSessionFactory);
         BatchInsertScanner.addClass(ITestMapper.class);
         BatchInsertScanner.scan();
 

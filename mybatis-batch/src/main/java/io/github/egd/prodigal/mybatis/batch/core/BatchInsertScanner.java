@@ -1,8 +1,10 @@
 package io.github.egd.prodigal.mybatis.batch.core;
 
 import io.github.egd.prodigal.mybatis.batch.annotations.BatchInsert;
+import io.github.egd.prodigal.mybatis.batch.plugins.BatchInsertInterceptor;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.SqlCommandType;
+import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.plugin.PluginException;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -12,6 +14,7 @@ import org.springframework.util.ReflectionUtils;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -95,7 +98,23 @@ public class BatchInsertScanner {
         mapperMethods.clear();
         if (!BatchInsertContext.isInSpring()) {
             // 非spring环境下初始化拦截器的SqlSessionBuilder
-            BatchInsertContext.initSqlSessionBuilder();
+            checkAndInitSqlSessionBuilder();
+        }
+    }
+
+    /**
+     * 初始化拦截器的SqlSessionBuilder
+     */
+    private static void checkAndInitSqlSessionBuilder() {
+        // 防止没有手动设置拦截器的BatchSqlSessionBuilder，这里检查并设值
+        List<Interceptor> interceptors = BatchInsertContext.getSqlSessionFactory().getConfiguration().getInterceptors();
+        for (Interceptor interceptor : interceptors) {
+            if (interceptor instanceof BatchInsertInterceptor) {
+                BatchInsertInterceptor batchInsertInterceptor = (BatchInsertInterceptor) interceptor;
+                if (batchInsertInterceptor.getBatchSqlSessionBuilder() == null) {
+                    batchInsertInterceptor.setBatchSqlSessionBuilder(new DefaultBatchSqlSessionBuilder());
+                }
+            }
         }
     }
 

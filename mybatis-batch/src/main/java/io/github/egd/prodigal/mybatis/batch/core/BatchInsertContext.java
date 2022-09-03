@@ -1,23 +1,16 @@
 package io.github.egd.prodigal.mybatis.batch.core;
 
 import io.github.egd.prodigal.mybatis.batch.annotations.BatchInsert;
-import io.github.egd.prodigal.mybatis.batch.plugins.BatchInsertInterceptor;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.SqlCommandType;
 import org.apache.ibatis.mapping.SqlSource;
-import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.plugin.PluginException;
-import org.apache.ibatis.reflection.DefaultReflectorFactory;
-import org.apache.ibatis.reflection.MetaObject;
-import org.apache.ibatis.reflection.factory.DefaultObjectFactory;
-import org.apache.ibatis.reflection.wrapper.DefaultObjectWrapperFactory;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -165,23 +158,6 @@ public class BatchInsertContext {
         MappedStatement.Builder builder = new MappedStatement.Builder(configuration, id,
                 sqlSource, SqlCommandType.INSERT);
         configuration.addMappedStatement(builder.build());
-    }
-
-    /**
-     * 初始化拦截器的SqlSessionBuilder
-     */
-    public static void initSqlSessionBuilder() {
-        if (inSpring) {
-            return;
-        }
-        List<Interceptor> interceptors = BatchInsertContext.getSqlSessionFactory().getConfiguration().getInterceptors();
-        for (Interceptor interceptor : interceptors) {
-            if (interceptor instanceof BatchInsertInterceptor) {
-                MetaObject metaObject = MetaObject.forObject(interceptor, new DefaultObjectFactory(),
-                        new DefaultObjectWrapperFactory(), new DefaultReflectorFactory());
-                metaObject.setValue("batchSqlSessionBuilder", new DefaultBatchSqlSessionBuilder());
-            }
-        }
     }
 
 }

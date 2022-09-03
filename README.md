@@ -44,8 +44,8 @@ void forEachInsert(@Param("testPOS") List<TestPO> po);
 void insertOne(@Param("po") TestPO po);
 
 // 这个方法可以不写@Insert注解了，insertOne指上面的那个方法
-// 方法入参集合的对象类型可以不用跟insertOne一直，只要拥有必要的属性就行
-// item必须要insertOne里配置的一致
+// 方法入参集合的对象类型可以不用跟insertOne一致，只要拥有必要的属性就行
+// item必须要跟insertOne里配置的一致
 @BatchInsert(insert="insertOne", collection = "testPOS", item = "po", batchSize = 1000)
 void batchInsert(@Param("testPOS") List<TestPO> po);
 ...

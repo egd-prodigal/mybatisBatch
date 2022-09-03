@@ -29,7 +29,7 @@ void batchInsert(@Param("testPOS") List<TestPO> po);
         "</script>"})
 void forEachInsert(@Param("testPOS") List<TestPO> po);
 ```
-实测batch方式性能更佳
+实测batch方式性能方面以微弱的优势胜出，但从编码难度来看，batch方式显然更友好。
 
 > 注意：由于本项目的批量是基于Mybatis的BATCH模式，并自行提交，所以 **不要在强事务性业务使用本插件** ，遇到问题后果自负。
 > 建议在各种 _异步批量写_ 的场景下使用。

@@ -9,7 +9,7 @@ Mybatis 批量插入插件，提供更简化的批量insert插件
 <dependency>
   <groupId>io.github.egd-prodigal</groupId>
   <artifactId>mybatis-batch-starter</artifactId>
-  <version>1.0</version>
+  <version>1.0.1</version>
 </dependency>
 ```
 
@@ -29,10 +29,30 @@ void batchInsert(@Param("testPOS") List<TestPO> po);
         "</script>"})
 void forEachInsert(@Param("testPOS") List<TestPO> po);
 ```
-实测batch方式性能更佳
 
-> 注意：由于本项目的批量是基于Mybatis的BATCH模式，并自行提交，所以 **不要在强事务性业务使用本插件** ，遇到问题后果自负。
+
+> 注意：由于本项目的批量是基于Mybatis的BATCH模式，并自行提交，所以 **不要在强事务性业务使用本插件** ，遇到问题后果自负。  
 > 建议在各种 _异步批量写_ 的场景下使用。
 
 ### 非 **springboot** 项目 
  配置插件，增加 _BatchInsertInterceptor_ 插件，注意一定要配置插件的 _batchSqlSessionBuilder_ 为 _DefaultBatchSqlSessionBuilder_
+ 
+
+### 性能测试
+实测batch方式性能方面以微弱的优势胜出，但从编码难度来看，batch方式显然更友好。
+> 性能测试数据  
+> 1000000条数据，1000条一批，测试3次，batch与foreach方式耗时如下：  
+> mysql数据库（注意mysql数据库连接字符串一定要加上参数:  **rewriteBatchedStatements=true**，否则批量插入无效）：  
+> 次数|batch|耗时（毫秒）|foreach|耗时（毫秒）
+> ----|----|----|----|----
+> 1|batch|39509|foreach|46933
+> 2|batch|42421|foreach|42349
+> 3|batch|41450|foreach|51032
+> 
+> oracle数据库（oracle性能果然高）：  
+> 次数|batch|耗时（毫秒）|foreach|耗时（毫秒）
+> ----|----|----|----|----
+> 1|batch|10537|foreach|13239
+> 2|batch|8927|foreach|12498
+> 3|batch|10699|foreach|14566
+>

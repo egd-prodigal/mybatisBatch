@@ -55,4 +55,5 @@ void forEachInsert(@Param("testPOS") List<TestPO> po);
 > 1|batch|10537|foreach|13239
 > 2|batch|8927|foreach|12498
 > 3|batch|10699|foreach|14566
->
+### 开发者
+> 生一鸣，曾广霏，宋祥富

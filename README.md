@@ -48,3 +48,11 @@ void forEachInsert(@Param("testPOS") List<TestPO> po);
 > 1|batch|39509|foreach|46933
 > 2|batch|42421|foreach|42349
 > 3|batch|41450|foreach|51032
+> 
+> oracle数据库（oracle性能果然高）：  
+> 次数|batch|耗时（毫秒）|foreach|耗时（毫秒）
+> ----|----|----|----|----
+> 1|batch|10537|foreach|13239
+> 2|batch|8927|foreach|12498
+> 3|batch|10699|foreach|14566
+>

@@ -42,7 +42,7 @@ void forEachInsert(@Param("testPOS") List<TestPO> po);
 实测batch方式性能方面以微弱的优势胜出，但从编码难度来看，batch方式显然更友好。
 > 性能测试数据  
 > 1000000条数据，1000条一批，测试3次，batch与foreach方式耗时如下：  
-> mysql数据库（注意mysql数据库连接字符串一定要加上参数: rewriteBatchedStatements=true，否则批量插入无效）：  
+> mysql数据库（注意mysql数据库连接字符串一定要加上参数:  **rewriteBatchedStatements=true**，否则批量插入无效）：  
 > 次数|batch|耗时（毫秒）|foreach|耗时（毫秒）
 > ----|----|----|----|----
 > 1|batch|39509|foreach|46933

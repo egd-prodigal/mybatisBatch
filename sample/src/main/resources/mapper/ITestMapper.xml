@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.github.egd.prodigal.sample.repository.mapper.ITestMapper">
+
+    <insert id="xmlBatchInsert" parameterType="io.github.egd.prodigal.sample.repository.entity.TestPO">
+        insert into test (id, name) values (#{po.id}, #{po.name})
+    </insert>
+
+</mapper>

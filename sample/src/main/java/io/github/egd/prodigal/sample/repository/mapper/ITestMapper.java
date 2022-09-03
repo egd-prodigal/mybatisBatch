@@ -16,6 +16,13 @@ public interface ITestMapper {
     @BatchInsert(collection = "testPOS", item = "po", batchSize = 1000)
     void batchInsert(@Param("testPOS") List<TestPO> po);
 
+    @BatchInsert(collection = "testPOS", item = "po", batchSize = 10)
+    @InsertProvider(type = Provider.class, method = "providerBatch")
+    void providerBatchInsert(@Param("testPOS") List<TestPO> po);
+
+    @BatchInsert(collection = "testPOS", item = "po", batchSize = 10)
+    void xmlBatchInsert(@Param("testPOS") List<TestPO> po);
+
     @Insert({"<script>",
             "insert into test(id, name) values ",
             "<foreach collection='testPOS' index='index' item='po' separator=','>",
@@ -36,5 +43,14 @@ public interface ITestMapper {
 
     @Select("select count(*) from test")
     int count();
+
+
+    class Provider {
+
+        public String providerBatch(@Param("testPOS") List<TestPO> po) {
+            return "insert into test (id, name) values (#{po.id}, #{po.name})";
+        }
+
+    }
 
 }

@@ -68,6 +68,8 @@ public class TestRepositoryTest {
         }
         long start = System.currentTimeMillis();
         testMapper.batchInsert(list);
+//        testMapper.providerBatchInsert(list);
+//        testMapper.xmlBatchInsert(list);
         System.out.println("batch: " + (System.currentTimeMillis() - start));
 		System.out.println("count: " + testMapper.count());
     }

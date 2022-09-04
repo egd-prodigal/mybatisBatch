@@ -152,7 +152,6 @@ public class BatchInsertInterceptor implements Interceptor {
                 }
                 // 最后提交一次
                 sqlSession.commit();
-                sqlSession.clearCache();
             } catch (Throwable throwable) {
                 // 异常回滚
                 sqlSession.rollback();

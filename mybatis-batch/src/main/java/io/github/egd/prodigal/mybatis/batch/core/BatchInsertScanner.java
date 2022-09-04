@@ -34,12 +34,22 @@ public class BatchInsertScanner {
      * 添加Mapper接口类
      *
      * @param clazz 接口类
+     * @param classes 允许传多个类
      */
-    public static void addClass(Class<?> clazz) {
+    public static void addClass(Class<?> clazz, Class<?>... classes) {
         if (clazz.isInterface()) {
             mapperClasses.add(clazz);
         } else {
             throw new PluginException("clazz is not interface");
+        }
+        if (classes != null && classes.length > 0) {
+            for (Class<?> aClass : classes) {
+                if (aClass.isInterface()) {
+                    mapperClasses.add(aClass);
+                } else {
+                    throw new PluginException("clazz is not interface");
+                }
+            }
         }
     }
 
@@ -47,10 +57,16 @@ public class BatchInsertScanner {
      * 添加批量保存方法
      *
      * @param method 批量保存方法
+     * @param methods 允许传多个方法
      */
-    public static void addMethod(Method method) {
+    public static void addMethod(Method method, Method... methods) {
         if (method.getAnnotation(BatchInsert.class) != null) {
             mapperMethods.add(method);
+        }
+        for (Method m : methods) {
+            if (m.getAnnotation(BatchInsert.class) != null) {
+                mapperMethods.add(m);
+            }
         }
     }
 

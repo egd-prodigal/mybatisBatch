@@ -4,6 +4,7 @@ import io.github.egd.prodigal.mybatis.batch.annotations.BatchInsert;
 import io.github.egd.prodigal.mybatis.batch.core.BatchInsertContext;
 import io.github.egd.prodigal.mybatis.batch.core.BatchSqlSessionBuilder;
 import org.apache.ibatis.binding.MapperMethod.ParamMap;
+import org.apache.ibatis.executor.BatchResult;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.SqlCommandType;
@@ -11,10 +12,7 @@ import org.apache.ibatis.plugin.*;
 import org.apache.ibatis.session.SqlSession;
 
 import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.stream.Stream;
 
 /**
@@ -110,6 +108,7 @@ public class BatchInsertInterceptor implements Interceptor {
      * @return Object，一般都是void
      */
     private Object invokeBatchInsert(MappedStatement mappedStatement, BatchInsert batchInsert, Collection<?> itemList, ParamMap<?> paramMap) {
+        int updateCounts = 0;
         // 先获取SqlSession，必须是Batch模式的
         try (SqlSession sqlSession = openSession()) {
             // 批量提交数量
@@ -146,7 +145,13 @@ public class BatchInsertInterceptor implements Interceptor {
                     sqlSession.insert(statement, argument);
                     if (index % batchSize == 0) {
                         // 执行之前的保存sql
-                        sqlSession.flushStatements();
+                        List<BatchResult> batchResults = sqlSession.flushStatements();
+                        for (BatchResult batchResult : batchResults) {
+                            int[] ints = batchResult.getUpdateCounts();
+                            for (int result : ints) {
+                                updateCounts += result;
+                            }
+                        }
                     }
                     index++;
                 }
@@ -158,7 +163,7 @@ public class BatchInsertInterceptor implements Interceptor {
                 throw throwable;
             }
         }
-        return itemList.size();
+        return updateCounts;
     }
 
     /**

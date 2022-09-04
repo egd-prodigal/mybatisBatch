@@ -17,7 +17,7 @@ public interface ITestMapper {
     void batchInsert(@Param("testPOS") List<TestPO> po);
 
     @BatchInsert(insert = "insert", collection = "testPOS", item = "po", batchSize = 10)
-    void batchInsert2(@Param("testPOS") List<TestPO> po);
+    int batchInsert2(@Param("testPOS") List<TestPO> po);
 
     @BatchInsert(collection = "testPOS", item = "po", batchSize = 10)
     @InsertProvider(type = Provider.class, method = "providerBatch")

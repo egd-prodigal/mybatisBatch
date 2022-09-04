@@ -2,12 +2,9 @@ package io.github.egd.prodigal.sample.test;
 
 import io.github.egd.prodigal.mybatis.batch.core.BatchInsertContext;
 import io.github.egd.prodigal.mybatis.batch.core.BatchInsertScanner;
-import io.github.egd.prodigal.mybatis.batch.core.DefaultBatchSqlSessionBuilder;
-import io.github.egd.prodigal.mybatis.batch.plugins.BatchInsertInterceptor;
 import io.github.egd.prodigal.sample.repository.entity.TestPO;
 import io.github.egd.prodigal.sample.repository.mapper.ITestMapper;
 import org.apache.ibatis.io.Resources;
-import org.apache.ibatis.reflection.MetaObject;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
@@ -30,30 +27,31 @@ public class TestWithoutSpring {
         BatchInsertScanner.addClass(ITestMapper.class);
         BatchInsertScanner.scan();
 
-        SqlSession sqlSession = sqlSessionFactory.openSession();
-        ITestMapper testMapper = sqlSession.getMapper(ITestMapper.class);
+        try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
+            ITestMapper testMapper = sqlSession.getMapper(ITestMapper.class);
 
-        testMapper.deleteAll();
-        sqlSession.commit();
+            testMapper.deleteAll();
+            sqlSession.commit();
 
-        int size = 100;
-        List<TestPO> list = new ArrayList<>();
-        for (int i = 0; i < size; i++) {
-            TestPO po = new TestPO();
-            po.setId(i + 1);
-            po.setName("yeemin");
-            list.add(po);
+            int size = 100;
+            List<TestPO> list = new ArrayList<>();
+            for (int i = 0; i < size; i++) {
+                TestPO po = new TestPO();
+                po.setId(i + 1);
+                po.setName("yeemin");
+                list.add(po);
+            }
+            long start = System.currentTimeMillis();
+            int i = testMapper.batchInsert2(list);
+            System.out.println("batchCount: " + i);
+
+            testMapper.deleteAll();
+            sqlSession.commit();
+
+            testMapper.batchInsert(list);
+            System.out.println("batch: " + (System.currentTimeMillis() - start));
+            System.out.println("count: " + testMapper.count());
         }
-        long start = System.currentTimeMillis();
-        testMapper.batchInsert2(list);
-
-        testMapper.deleteAll();
-        sqlSession.commit();
-
-        testMapper.batchInsert(list);
-        System.out.println("batch: " + (System.currentTimeMillis() - start));
-        System.out.println("count: " + testMapper.count());
-
     }
 
 }

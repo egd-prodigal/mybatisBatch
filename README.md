@@ -77,7 +77,7 @@ void batchInsert(@Param("testPOS") List<TestPO> po);
 </plugins>
 ```
 
-如果是spring项目，基于javaConfig装配的Bean，可以在手动装配SqlSessionFaction的地方直接添加intercepter，注意手动设置batchSqlSessionBuilder。
+如果是spring项目，基于javaConfig装配的Bean，可以在手动装配SqlSessionFaction的地方直接添加interceptor，注意手动设置batchSqlSessionBuilder。
 
 编写mybatis初始化代码，基于xml配置生成SqlSessionFactory，然后添加如下代码：
 
@@ -111,6 +111,43 @@ BatchInsertScanner.scan();
 > 1|batch|10537|foreach|13239
 > 2|batch|8927|foreach|12498
 > 3|batch|10699|foreach|14566
+
+### 事务问题
+
+上面提到的 **不建议在强事务性业务中使用本插件** 的警告，是因为在批量的模式下，当数据量足够大时，数据会一批一批的刷入数据库，
+压力测试时频繁查询数据库可以实际观察到这一现象，数据会以 _batchSize_ 配置的参数递增。  
+并且由于本插件是单独开启了一个 _SqlSession_ ，而其他正常的业务操作都使用了默认的 _SqlSession_ ，这两个会话不主动 **互相** 共享事务，
+但是事实上，后创建的 _SqlSession_ 拥有先创建的 _SqlSession_ 已执行的数据状态，
+也就是说后创建的批量模式的 _SqlSession_ 在执行时有能力读到先创建的 _SqlSession_ 已执行的sql语句的结果，
+但后创建的 _SqlSession_ 执行的数据更新操作，离开这个会话后返回至先创建的 _SqlSession_ 会话时，无法感知到它已执行的语句的结果，
+但是如果后创建的 _SqlSession_ 执行了 **flushStatements** 操作，那么先创建的 _SqlSession_ 的后续操作将会感知到它的执行结果。  
+例如如果先创建的 _SqlSession_ 再执行保存相同主键的数据，如果后创建的 _SqlSession_ 针对这条数据没有执行 **flushStatements** ，
+那么执行时不会报错，但是事务提交时会报错，并回滚两个会话的事务；如果后创建的 _SqlSession_ 针对这条数据执行了 **flushStatements** ，
+那么执行时会直接报错。也就是说使用 **flushStatements** 可以让后发生的 _SqlSession_ 的结果被先发生的 _SqlSession_ 感知到。  
+因此，注解 **@BatchInsert** 提供了 _flushStatements_ 参数，默认为true，表示是否预刷入数据库。  
+关于事务问题示例如下:
+1. 批量保存感知到之前执行的结果
+```java
+// 直接以主键为1插入数据库，此时是在默认的SqlSession，即先创建的SqlSession里执行
+testMapper.insert(1);
+List<Integer> list = new ArrayList<>();
+list.add(1);
+list.add(2);
+// 假设这是一个批量保存的方法，会创建一个新的SqlSession，但是它能感知到之前insert的数据，所以会抛出主键冲突的异常
+testMapper.batchInsert(list);
+```
+2. 单个保存感知到批量保存的结果
+```java
+List<Integer> list = new ArrayList<>();
+list.add(1);
+list.add(2);
+// 假设这是一个批量保存的方法，会创建一个新的SqlSession
+testMapper.batchInsert(list);
+// 直接以主键为1插入数据库，此时是在默认的SqlSession，即先创建的SqlSession里执行，
+// 由于本插件默认执行了flushStatements，所以这里将会抛出主键冲突异常
+// 如果testMapper.batchInsert配置了flushStatements为false，且执行的数据小于batchSize，则不会抛出异常，而是在事务提交时抛出
+testMapper.insert(1);
+```
 
 ### 其他
 Mybatis-Plus已经实现了本插件提供的功能，考虑到项目组开发习惯，并未引入Mybatis-Plus，故而开发此插件。

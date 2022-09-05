@@ -13,7 +13,7 @@ public interface ITestMapper {
     int insert(@Param("po") TestPO po);
 
     @Insert({"insert into test (id, name)", "values", "(#{po.id}, #{po.name})"})
-    @BatchInsert(collection = "testPOS", item = "po", batchSize = 10)
+    @BatchInsert(collection = "testPOS", item = "po", batchSize = 10, flushStatements = false)
     void batchInsert(@Param("testPOS") List<TestPO> po);
 
     @BatchInsert(insert = "insert", collection = "testPOS", item = "po", batchSize = 10)

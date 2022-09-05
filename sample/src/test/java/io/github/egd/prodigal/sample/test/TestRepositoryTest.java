@@ -37,6 +37,7 @@ public class TestRepositoryTest {
     @Test
     public void queryAll() {
         List<TestPO> list = testMapper.queryAll();
+        System.out.println(testMapper.count());
         System.out.println(list);
     }
 
@@ -65,7 +66,7 @@ public class TestRepositoryTest {
     public void batchInsertMapper() {
         insert();
         deleteAll();
-        int size = 100;
+        int size = 101;
         List<TestPO> list = new ArrayList<>();
         for (int i = 0; i < size; i++) {
             TestPO po = new TestPO();

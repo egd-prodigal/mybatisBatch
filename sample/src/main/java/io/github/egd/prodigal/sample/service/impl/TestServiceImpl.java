@@ -20,7 +20,7 @@ public class TestServiceImpl implements TestService {
     @Transactional
     public void test() {
         testMapper.deleteAll();
-        int size = 100;
+        int size = 105;
         List<TestPO> list = new ArrayList<>();
         for (int i = 0; i < size; i++) {
             TestPO po = new TestPO();
@@ -29,6 +29,10 @@ public class TestServiceImpl implements TestService {
             list.add(po);
         }
         testMapper.batchInsert(list);
+        TestPO testPO = new TestPO();
+        testPO.setId(88);
+        testPO.setName("yeemin");
+        testMapper.insert(testPO);
         System.out.println("count: " + testMapper.count());
     }
 

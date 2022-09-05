@@ -37,8 +37,7 @@ void batchInsert(@Param("testPOS") List<TestPO> po);
 void forEachInsert(@Param("testPOS") List<TestPO> po);
 ```
 
-除了基于 **@Insert** 注解的编程方式，还支持 **@InsertProvider** 和 **xml** 的方式，只需在对应的Mapper接口的方法上增加 **
-@BatchInsert** 注解即可。  
+除了基于 **@Insert** 注解的编程方式，还支持 **@InsertProvider** 和 **xml** 的方式，只需在对应的Mapper接口的方法上增加 **@BatchInsert** 注解即可。  
 另外，**@BatchInsert** 还提供了一个参数 _insert_ ，用以指明单条保存的方法，这样批量保存方法可以不用写@Insert以及sql代码，使用方式如下所示：
 
 ```java
@@ -53,7 +52,7 @@ void batchInsert(@Param("testPOS") List<TestPO> po);
 ```
 
 **@BatchInsert** 注解使用时，如果指定了 _insert_ 参数的同时，方法也拥有 **@Insert** 注解，取 _insert_ 参数配置的方法。  
-启动时不会检查正确性，如果编写有误，将会在执行时抛出相应异常。
+启动时不会检查正确性，后续可以考虑加上部分校验规则，如果编写有误，将会在执行时抛出相应异常。
 
 > 注意：由于本项目的批量是基于Mybatis的BATCH模式，并手动批量提交已执行的部分sql，所以 **不建议在强事务性业务中使用本插件** ，如果使用了，并且遇到问题了，欢迎联系开发者修复。  
 > 建议在各种 _异步批量保存_ 的场景下使用，以及批量添加后不存在查询和其他对插入的数据操作的场景。

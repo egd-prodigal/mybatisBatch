@@ -54,6 +54,6 @@ public @interface BatchInsert {
      *
      * @return boolean
      */
-    boolean flushStatements() default false;
+    boolean flushStatements() default true;
 
 }

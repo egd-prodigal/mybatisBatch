@@ -110,7 +110,7 @@ public class BatchInsertInterceptor implements Interceptor {
     private Object invokeBatchInsert(MappedStatement mappedStatement, BatchInsert batchInsert, Collection<?> itemList, ParamMap<?> paramMap) {
         int updateCounts = 0;
         // 先获取SqlSession，必须是Batch模式的
-        SqlSession sqlSession = openSession();
+        SqlSession sqlSession = openSession(batchInsert.flushStatements());
         try {
             // 批量提交数量
             int batchSize = batchInsert.batchSize();
@@ -268,8 +268,8 @@ public class BatchInsertInterceptor implements Interceptor {
      *
      * @return SqlSession
      */
-    private SqlSession openSession() {
-        return getBatchSqlSessionBuilder().build();
+    private SqlSession openSession(boolean flushStatements) {
+        return getBatchSqlSessionBuilder().build(flushStatements);
     }
 
     @Override

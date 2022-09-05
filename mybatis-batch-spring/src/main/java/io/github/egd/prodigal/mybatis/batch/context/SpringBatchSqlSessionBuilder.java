@@ -28,12 +28,17 @@ public class SpringBatchSqlSessionBuilder implements BatchSqlSessionBuilder {
     /**
      * 构造SqlSession
      *
+     * @param flushStatements 是否预提交
      * @return SqlSession
      */
     @Override
-    public SqlSession build() {
+    public SqlSession build(boolean flushStatements) {
+        SqlSessionFactory sqlSessionFactory = sqlSessionTemplate.getSqlSessionFactory();
+        if (flushStatements) {
+            SqlSessionUtils.getSqlSession(sqlSessionFactory).flushStatements();
+        }
         // 重新开启一个SqlSession，基于sqlSessionTemplate创建
-        SqlSession sqlSession = sqlSessionTemplate.getSqlSessionFactory().openSession(ExecutorType.BATCH, false);
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH, false);
         // 如果存在spring管理的事务，则交给spring管理
         boolean synchronizationActive = TransactionSynchronizationManager.isSynchronizationActive();
         if (synchronizationActive) {

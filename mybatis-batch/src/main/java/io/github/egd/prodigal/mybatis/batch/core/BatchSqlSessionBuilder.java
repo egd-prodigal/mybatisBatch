@@ -10,9 +10,10 @@ public interface BatchSqlSessionBuilder {
     /**
      * 构造SqlSession
      *
+     * @param flushStatements 是否预提交
      * @return SqlSession
      */
-    SqlSession build();
+    SqlSession build(boolean flushStatements);
 
     /**
      * 提交事务

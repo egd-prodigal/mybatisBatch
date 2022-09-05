@@ -26,10 +26,11 @@ public class DefaultBatchSqlSessionBuilder implements BatchSqlSessionBuilder {
     /**
      * 构造SqlSession
      *
+     * @param flushStatements 是否预提交
      * @return SqlSession
      */
     @Override
-    public SqlSession build() {
+    public SqlSession build(boolean flushStatements) {
         // 非spring环境或者默认环境下，直接调用openSession方法，并指定Batch模式和不自动提交
         return sqlSessionFactory.openSession(ExecutorType.BATCH, false);
     }

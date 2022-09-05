@@ -3,6 +3,7 @@ package io.github.egd.prodigal.sample.test;
 import io.github.egd.prodigal.sample.repository.dao.TestBatchDao;
 import io.github.egd.prodigal.sample.repository.entity.TestPO;
 import io.github.egd.prodigal.sample.repository.mapper.ITestMapper;
+import io.github.egd.prodigal.sample.service.TestService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,6 +20,9 @@ public class TestRepositoryTest {
 
     @Autowired
     private TestBatchDao testBatchDao;
+
+    @Autowired
+    private TestService testService;
 
     @Test
     public void insert() {
@@ -120,6 +124,13 @@ public class TestRepositoryTest {
             e.printStackTrace();
         }
         System.out.println(testMapper.count());
+    }
+
+    @Test
+    public void transactionTest() {
+        deleteAll();
+        testService.test();
+        System.out.println(testService.count());
     }
 
 }

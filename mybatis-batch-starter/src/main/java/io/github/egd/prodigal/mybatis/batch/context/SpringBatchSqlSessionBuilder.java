@@ -7,7 +7,7 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionTemplate;
-import org.springframework.transaction.support.TransactionSynchronization;
+import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 /**
@@ -37,18 +37,10 @@ public class SpringBatchSqlSessionBuilder implements BatchSqlSessionBuilder {
         // 如果存在spring管理的事务，则交给spring管理
         boolean synchronizationActive = TransactionSynchronizationManager.isSynchronizationActive();
         if (synchronizationActive) {
-            TransactionSynchronizationManager.bindResource(sqlSessionTemplate, sqlSession);
-            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-                @Override
-                public void beforeCommit(boolean readOnly) {
-                    sqlSession.commit();
-                }
-
-                @Override
-                public void afterCompletion(int status) {
-                    sqlSession.close();
-                }
-            });
+            Object resource = TransactionSynchronizationManager.getResource(sqlSessionTemplate);
+            if (resource == null) {
+                new BatchSqlSessionSynchronization(this.sqlSessionTemplate, sqlSession).register();
+            }
         }
         return sqlSession;
     }
@@ -63,6 +55,12 @@ public class SpringBatchSqlSessionBuilder implements BatchSqlSessionBuilder {
         if (!TransactionSynchronizationManager.isSynchronizationActive()) {
             BatchSqlSessionBuilder.super.commit(sqlSession);
         }
+        if (TransactionSynchronizationManager.getResource(sqlSessionTemplate.getSqlSessionFactory()) != null) {
+            SqlSession session = SqlSessionUtils.getSqlSession(sqlSessionTemplate.getSqlSessionFactory());
+            if (session != null) {
+                session.flushStatements();
+            }
+        }
     }
 
     /**
@@ -74,8 +72,7 @@ public class SpringBatchSqlSessionBuilder implements BatchSqlSessionBuilder {
     public void close(SqlSession sqlSession) {
         if (!TransactionSynchronizationManager.isSynchronizationActive()) {
             BatchSqlSessionBuilder.super.close(sqlSession);
-        } else {
-            TransactionSynchronizationManager.unbindResourceIfPossible(sqlSessionTemplate);
         }
     }
+
 }

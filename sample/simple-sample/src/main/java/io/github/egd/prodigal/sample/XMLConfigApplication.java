@@ -1,32 +1,36 @@
-package io.github.egd.prodigal.sample.test;
+package io.github.egd.prodigal.sample;
 
 import io.github.egd.prodigal.mybatis.batch.core.BatchInsertContext;
 import io.github.egd.prodigal.mybatis.batch.core.BatchInsertScanner;
-import io.github.egd.prodigal.sample.repository.entity.TestPO;
-import io.github.egd.prodigal.sample.repository.mapper.ITestMapper;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
-import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TestWithoutSpring {
+public class XMLConfigApplication {
 
-    @Test
-    public void test() throws IOException {
-        String resource = "nospring/mybatis-config.xml";
-        InputStream inputStream = Resources.getResourceAsStream(resource);
-        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
+    private static final SqlSessionFactory sqlSessionFactory;
 
+    static {
+        try {
+            // 初始化SqlSessionFactory
+            String resource = "mybatis-config.xml";
+            InputStream inputStream = Resources.getResourceAsStream(resource);
+            sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         BatchInsertContext.setSqlSessionFactory(sqlSessionFactory);
         BatchInsertScanner.addClass(ITestMapper.class);
         BatchInsertScanner.scan();
+    }
 
+    public static void main(String[] args) {
         try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
             ITestMapper testMapper = sqlSession.getMapper(ITestMapper.class);
 
@@ -38,7 +42,7 @@ public class TestWithoutSpring {
             for (int i = 0; i < size; i++) {
                 TestPO po = new TestPO();
                 po.setId(i + 1);
-                po.setName("yeemin");
+                po.setName("yeemin-" + po.getId());
                 list.add(po);
             }
             long start = System.currentTimeMillis();

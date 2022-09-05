@@ -4,11 +4,13 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.github.egd-prodigal</groupId>
     <artifactId>sample</artifactId>
-    <version>1.2.2</version>
+    <version>2.0.0</version>
     <packaging>pom</packaging>
 
     <modules>
         <module>springboot-sample</module>
+        <module>spring-sample</module>
+        <module>simple-sample</module>
     </modules>
 
     <properties>

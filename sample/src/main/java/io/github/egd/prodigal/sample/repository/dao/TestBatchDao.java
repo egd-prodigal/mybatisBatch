@@ -17,17 +17,21 @@ public class TestBatchDao {
     private SqlSessionFactory sqlSessionFactory;
 
     public void batchInsert(List<TestPO> list) {
-        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH, false);
-        ITestMapper testMapper = sqlSession.getMapper(ITestMapper.class);
-        for (int i = 0; i < list.size(); i++) {
-            testMapper.insert(list.get(i));
-            if (i % 10 == 9) {
-                sqlSession.commit();
-                sqlSession.clearCache();
+        try (SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH, false)) {
+            ITestMapper testMapper = sqlSession.getMapper(ITestMapper.class);
+            for (int i = 0; i < list.size(); i++) {
+                testMapper.insert(list.get(i));
+                if (i % 10 == 9) {
+                    sqlSession.flushStatements();
+                }
+                if (i > 55) {
+                    sqlSession.rollback();
+                    return;
+                }
             }
+            sqlSession.commit();
+            sqlSession.clearCache();
         }
-        sqlSession.commit();
-        sqlSession.clearCache();
     }
 
 }

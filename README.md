@@ -12,7 +12,7 @@ Batch Insert for Mybatis Mybatis 批量保存插件，提供更简化的批量in
 <dependency>
     <groupId>io.github.egd-prodigal</groupId>
     <artifactId>mybatis-batch-starter</artifactId>
-    <version>1.2.1</version>
+    <version>1.2.2</version>
 </dependency>
 ```
 
@@ -65,7 +65,7 @@ void batchInsert(@Param("testPOS") List<TestPO> po);
 <dependency>
     <groupId>io.github.egd-prodigal</groupId>
     <artifactId>mybatis-batch</artifactId>
-    <version>1.2.1</version>
+    <version>1.2.2</version>
 </dependency>
 ```
 

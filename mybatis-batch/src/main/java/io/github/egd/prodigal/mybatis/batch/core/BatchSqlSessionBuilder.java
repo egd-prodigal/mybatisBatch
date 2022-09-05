@@ -18,8 +18,12 @@ public interface BatchSqlSessionBuilder {
      * 提交事务
      *
      * @param sqlSession sqlSession
+     * @param flushStatements 是否刷盘
      */
-    default void commit(SqlSession sqlSession) {
+    default void commit(SqlSession sqlSession, boolean flushStatements) {
+        if (flushStatements) {
+            sqlSession.flushStatements();
+        }
         sqlSession.commit();
     }
 

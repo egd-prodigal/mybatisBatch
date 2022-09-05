@@ -14,6 +14,8 @@ import java.lang.annotation.Target;
  * {@link #collection()} ()} 指定方法入参的对象名，与方法参数的{@link Param#value()}的值一致
  * {@link #item()} 指定sql语句里的实体类的参数名，不写此值可以直接用对应的参数名
  * {@link #batchSize()} 指定批量一次提交的数据量
+ * {@link #insert()} 指定单条保存的方法，必须在相同Mapper接口类里
+ * {@link #flushStatements()} 是否把已执行的数据刷入数据库
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
@@ -46,5 +48,12 @@ public @interface BatchInsert {
      * @return 本接口类里的其他单条插入的方法名
      */
     String insert() default "";
+
+    /**
+     * 是否把已执行的数据刷入数据库
+     *
+     * @return boolean
+     */
+    boolean flushStatements() default false;
 
 }

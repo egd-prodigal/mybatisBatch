@@ -48,6 +48,13 @@ public class BatchSqlSessionSynchronization implements TransactionSynchronizatio
 
     @Override
     public void afterCompletion(int status) {
+        if (TransactionSynchronization.STATUS_ROLLED_BACK == status) {
+            // 回滚操作，但是在这里回滚，已经晚了，之前执行的flushStatements已经把部分数据刷入数据库
+            try {
+                sqlSession.rollback();
+            } catch (Exception ignored) {
+            }
+        }
         TransactionSynchronizationManager.unbindResourceIfPossible(sqlSessionTemplate);
         sqlSession.close();
     }

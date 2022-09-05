@@ -6,6 +6,7 @@ import io.github.egd.prodigal.sample.repository.mapper.ITestMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,7 +57,9 @@ public class TestRepositoryTest {
     }
 
     @Test
+    @Transactional
     public void batchInsertMapper() {
+        insert();
         deleteAll();
         int size = 100;
         List<TestPO> list = new ArrayList<>();
@@ -68,8 +71,10 @@ public class TestRepositoryTest {
         }
         long start = System.currentTimeMillis();
         testMapper.batchInsert(list);
-//        testMapper.providerBatchInsert(list);
-//        testMapper.xmlBatchInsert(list);
+        deleteAll();
+        testMapper.providerBatchInsert(list);
+        deleteAll();
+        testMapper.xmlBatchInsert(list);
         System.out.println("batch: " + (System.currentTimeMillis() - start));
         System.out.println("count: " + testMapper.count());
     }
@@ -116,6 +121,5 @@ public class TestRepositoryTest {
         }
         System.out.println(testMapper.count());
     }
-
 
 }

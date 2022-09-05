@@ -33,7 +33,7 @@ public class BatchInsertScanner {
     /**
      * 添加Mapper接口类
      *
-     * @param clazz 接口类
+     * @param clazz   接口类
      * @param classes 允许传多个类
      */
     public static void addClass(Class<?> clazz, Class<?>... classes) {
@@ -56,7 +56,7 @@ public class BatchInsertScanner {
     /**
      * 添加批量保存方法
      *
-     * @param method 批量保存方法
+     * @param method  批量保存方法
      * @param methods 允许传多个方法
      */
     public static void addMethod(Method method, Method... methods) {

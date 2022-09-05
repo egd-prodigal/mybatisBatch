@@ -14,4 +14,22 @@ public interface BatchSqlSessionBuilder {
      */
     SqlSession build();
 
+    /**
+     * 提交事务
+     *
+     * @param sqlSession sqlSession
+     */
+    default void commit(SqlSession sqlSession) {
+        sqlSession.commit();
+    }
+
+    /**
+     * 关闭SqlSession
+     *
+     * @param sqlSession sqlSession
+     */
+    default void close(SqlSession sqlSession) {
+        sqlSession.close();
+    }
+
 }

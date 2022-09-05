@@ -84,6 +84,7 @@ void batchInsert(@Param("testPOS") List<TestPO> po);
       ```
    2. 基于JavaConfig
       ```java
+      @Bean
       public MybatisBatchConfiguration mybatisBatchConfiguration() {
         return new MybatisBatchConfiguration();
       }

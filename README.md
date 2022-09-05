@@ -176,6 +176,7 @@ testMapper.batchInsert(list);
 // 如果testMapper.batchInsert配置了flushStatements为false，且执行的数据小于batchSize，则不会抛出异常，而是在事务提交时抛出
 testMapper.insert(1);
 ```
+关于事务的功能测试见sample -> oracle-sample项目，数据库创建表test，修改连接配置后启动，请求web包下的url可以观察事务的产生。
 
 ### 其他
 Mybatis-Plus已经实现了本插件提供的功能，考虑到项目组开发习惯，并未引入Mybatis-Plus，故而开发此插件。  

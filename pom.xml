@@ -7,6 +7,7 @@
         <module>mybatis-batch</module>
         <module>sample</module>
         <module>mybatis-batch-starter</module>
+        <module>mybatis-batch-spring</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>

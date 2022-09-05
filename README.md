@@ -151,4 +151,5 @@ testMapper.insert(1);
 ```
 
 ### 其他
-Mybatis-Plus已经实现了本插件提供的功能，考虑到项目组开发习惯，并未引入Mybatis-Plus，故而开发此插件。
+Mybatis-Plus已经实现了本插件提供的功能，考虑到项目组开发习惯，并未引入Mybatis-Plus，故而开发此插件。  
+版本：本插件开发时基于Mybatis: 3.5.9，SpringBoot： 2.7.3， Spring：5.3.22，实测可兼容版本为：Mybatis: 3.4.5，SpringBoot： 2.1.3， Spring：5.1.5，可能还能兼容更低的版本，欢迎测试。

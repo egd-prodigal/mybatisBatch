@@ -5,7 +5,6 @@
     <packaging>pom</packaging>
     <modules>
         <module>mybatis-batch</module>
-        <module>sample</module>
         <module>mybatis-batch-starter</module>
         <module>mybatis-batch-spring</module>
     </modules>

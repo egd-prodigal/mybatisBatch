@@ -13,7 +13,7 @@
             <transactionManager type="JDBC"/>
             <dataSource type="POOLED">
                 <property name="driver" value="org.h2.Driver"/>
-                <property name="url" value="jdbc:h2:~/mybatisbatch"/>
+                <property name="url" value="jdbc:h2:~/h2/mybatisbatch"/>
                 <property name="username" value="sa"/>
                 <property name="password" value="sa"/>
             </dataSource>

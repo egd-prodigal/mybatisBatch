@@ -30,7 +30,7 @@ public class TestServiceImpl implements TestService {
         }
         testMapper.batchInsert(list);
         TestPO testPO = new TestPO();
-        testPO.setId(88);
+        testPO.setId(106);
         testPO.setName("yeemin");
         testMapper.insert(testPO);
         System.out.println("count: " + testMapper.count());

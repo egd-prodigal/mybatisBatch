@@ -9,11 +9,10 @@ Batch Insert for Mybatis Mybatis 批量保存插件，提供更简化的批量in
 增加如下依赖：
 
 ```xml
-
 <dependency>
     <groupId>io.github.egd-prodigal</groupId>
     <artifactId>mybatis-batch-starter</artifactId>
-    <version>1.1.1</version>
+    <version>1.2.0</version>
 </dependency>
 ```
 
@@ -26,7 +25,7 @@ Batch Insert for Mybatis Mybatis 批量保存插件，提供更简化的批量in
 void batchInsert(@Param("testPOS") List<TestPO> po);
 ```
 
-上面的代码功能与下面的一致：
+上面的代码功能与下面的一致（sql语法因数据库而异）：
 
 ```java
 @Insert({"<script>",
@@ -43,7 +42,6 @@ void forEachInsert(@Param("testPOS") List<TestPO> po);
 另外，**@BatchInsert** 还提供了一个参数 _insert_ ，用以指明单条保存的方法，这样批量保存方法可以不用写@Insert以及sql代码，使用方式如下所示：
 
 ```java
-...
 @Insert({"insert into test (id, name)", "values", "(#{po.id}, #{po.name})"})
 void insertOne(@Param("po") TestPO po);
 
@@ -52,38 +50,32 @@ void insertOne(@Param("po") TestPO po);
 // item必须要跟insertOne里配置的一致
 @BatchInsert(insert = "insertOne", collection = "testPOS", item = "po", batchSize = 1000)
 void batchInsert(@Param("testPOS") List<TestPO> po);
-        ...
 ```
 
 **@BatchInsert** 注解使用时，如果指定了 _insert_ 参数的同时，方法也拥有 **@Insert** 注解，取 _insert_ 参数配置的方法。  
 启动时不会检查正确性，如果编写有误，将会在执行时抛出相应异常。
 
-> 注意：由于本项目的批量是基于Mybatis的BATCH模式，并自行提交，所以 **不要在强事务性业务使用本插件** ，遇到问题后果自负。  
-> 建议在各种 _异步批量保存_ 的场景下使用。
+> 注意：由于本项目的批量是基于Mybatis的BATCH模式，并手动批量提交已执行的部分sql，所以 **不建议在强事务性业务中使用本插件** ，如果使用了，并且遇到问题了，欢迎联系开发者修复。  
+> 建议在各种 _异步批量保存_ 的场景下使用，以及批量添加后不存在查询和其他对插入的数据操作的场景。
 
 ### 非 **springboot** 项目
 
 增加如下依赖
 
 ```xml
-
 <dependency>
     <groupId>io.github.egd-prodigal</groupId>
     <artifactId>mybatis-batch</artifactId>
-    <version>1.1.1</version>
+    <version>1.2.0</version>
 </dependency>
 ```
 
 在配置文件 **mybatis-config.xml** （也可以是其他文件名）里增加插件配置：
 
 ```xml
-...
-
 <plugins>
     <plugin interceptor="io.github.egd.prodigal.mybatis.batch.plugins.BatchInsertInterceptor"/>
 </plugins>
-
-        ...
 ```
 
 如果是spring项目，基于javaConfig装配的Bean，可以在手动装配SqlSessionFaction的地方直接添加intercepter，注意手动设置batchSqlSessionBuilder。
@@ -93,14 +85,14 @@ void batchInsert(@Param("testPOS") List<TestPO> po);
 ```java
 // 此处的sqlSessionFactory在之前的代码里生成，也可以是spring项目注入进来的
 BatchInsertContext.setSqlSessionFactory(sqlSessionFactory);
-// 添加拥有批量保存方法的Mapper接口类，相信此类场景不会太多，可以在任意位置调用
-        BatchInsertScanner.addClass(ITestMapper.class);
+// 添加拥有批量保存方法的Mapper接口类，可以传多个类，可以在任意位置调用
+BatchInsertScanner.addClass(ITestMapper.class);
 // 扫描批量保存方法，可以在任意位置任何使用调用，
 // 每次调用都只会扫描上次调用scan之后调用addClass添加的新的Mapper接口类
-        BatchInsertScanner.scan();
+BatchInsertScanner.scan();
 ```
 
-然后就可以使用本插件编写批量保存方法了，如果是spring项目，也需要编写上面几行代码。这类场景较少，暂不提供更便利的方式。
+然后就可以使用本插件编写批量保存方法了，如果是spring项目，也需要编写上面几行代码。
 
 ### 性能测试
 
@@ -121,6 +113,5 @@ BatchInsertContext.setSqlSessionFactory(sqlSessionFactory);
 > 2|batch|8927|foreach|12498
 > 3|batch|10699|foreach|14566
 
-### 开发者
-
-> 生一鸣，曾广霏，宋祥富
+### 其他
+Mybatis-Plus已经实现了本插件提供的功能，考虑到项目组开发习惯，并未引入Mybatis-Plus，故而开发此插件。

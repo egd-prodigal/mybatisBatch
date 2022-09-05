@@ -125,7 +125,7 @@ BatchInsertScanner.scan();
 例如如果先创建的 _SqlSession_ 再执行保存相同主键的数据，如果后创建的 _SqlSession_ 针对这条数据没有执行 **flushStatements** ，
 那么执行时不会报错，但是事务提交时会报错，并回滚两个会话的事务；如果后创建的 _SqlSession_ 针对这条数据执行了 **flushStatements** ，
 那么执行时会直接报错。也就是说使用 **flushStatements** 可以让后发生的 _SqlSession_ 的结果被先发生的 _SqlSession_ 感知到。  
-因此，注解 **@BatchInsert** 提供了 _flushStatements_ 参数，默认为true，表示是否预刷入数据库。  
+因此，注解 **@BatchInsert** 提供了 _flushStatements_ 参数，默认为true，表示是否预刷入数据库，但哪怕设置成false了，当一次插入的数据大于配置的 _batchSize_ 时，还是会有一部分数据已经预刷入数据库。  
 关于事务问题示例如下:
 1. 批量保存感知到之前执行的结果
 ```java

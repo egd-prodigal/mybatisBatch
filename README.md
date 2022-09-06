@@ -177,7 +177,7 @@ testMapper.insert(1);
 
 实测batch方式性能方面以明显的优势胜出，并且从编码难度来看，batch方式显然更友好。
 > 性能测试数据，详情见sample -> simple-sample里的代码  
-> 一次性保存1000_000条数据，1000条一批（batch方式由插件自行轮询，foreach手动分页），测试3次，batch与foreach方式耗时如下：  
+> 一次性保存1000_000条数据，1000条一批（batch方式由插件自行轮询，foreach手动分页），测试5次并取平均值，batch与foreach方式耗时如下：  
 > mysql数据库（注意mysql数据库连接字符串一定要加上参数:  **rewriteBatchedStatements=true**，否则批量保存无效）：  
 > 次数|batch耗时（毫秒）|foreach耗时（毫秒）
 > ----|----|----

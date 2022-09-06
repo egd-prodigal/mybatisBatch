@@ -56,7 +56,7 @@ void batchInsert(@Param("testPOS") List<TestPO> po);
 <dependency>
     <groupId>io.github.egd-prodigal</groupId>
     <artifactId>mybatis-batch-starter</artifactId>
-    <version>2.0.1</version>
+    <version>2.0.2</version>
 </dependency>
 ```
 示例见项目：sample -> springboot-sample
@@ -69,7 +69,7 @@ void batchInsert(@Param("testPOS") List<TestPO> po);
 <dependency>
     <groupId>io.github.egd-prodigal</groupId>
     <artifactId>mybatis-batch-spring</artifactId>
-    <version>2.0.1</version>
+    <version>2.0.2</version>
 </dependency>
 ```
 前提是已经在项目里配置好了Mybatis，然后在项目中使用下列任意一种配置：
@@ -97,7 +97,7 @@ void batchInsert(@Param("testPOS") List<TestPO> po);
 <dependency>
     <groupId>io.github.egd-prodigal</groupId>
     <artifactId>mybatis-batch</artifactId>
-    <version>2.0.1</version>
+    <version>2.0.2</version>
 </dependency>
 ```
 在配置文件 **mybatis-config.xml** （也可以是其他文件名）里增加插件配置：

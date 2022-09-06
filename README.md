@@ -182,7 +182,7 @@ testMapper.insert(1);
 关于事务的功能测试见sample -> oracle-sample项目、sample -> mysql-sample项目和sample -> postgre-sample项目，
 数据库创建表test，修改连接配置后启动，请求web包下的url可以观察事务的产生。
 > 区别：在实际测试中，批处理执行时如果有如主键冲突的报错，oracle在会话里共享到的数据更新数时执行到具体的那一条上一条的数量，
-> mysql在会话里共享到上一批批处理成功的数量，postgres直接把当前事务设置成aborted，后续无法对继续访问数据库，但如果捕获异常，
+> mysql在会话里共享到上一批批处理成功的数量，postgres直接把当前事务设置成aborted，后续无法再继续访问数据库，但如果捕获异常，
 > 可以让事务正常提交至执行报错的那一条上一条。
 
 ### 其他

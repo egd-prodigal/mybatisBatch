@@ -142,18 +142,18 @@ BatchInsertScanner.scan();
 
 ### 事务问题
 
-上面提到的 **不建议在强事务性业务中使用本插件** 的警告，是因为在批量的模式下，当数据量足够大时，数据会一批一批的刷入数据库，
-压力测试时频繁查询数据库可以实际观察到这一现象，数据会以 _batchSize_ 配置的参数递增。  
-并且由于本插件是单独开启了一个 _SqlSession_ ，而其他正常的业务操作都使用了默认的 _SqlSession_ ，这两个会话不主动 **互相** 共享事务，
-但是事实上，后创建的 _SqlSession_ 拥有先创建的 _SqlSession_ 已执行的数据状态，
-也就是说后创建的批量模式的 _SqlSession_ 在执行时有能力读到先创建的 _SqlSession_ 已执行的sql语句的结果，
-但后创建的 _SqlSession_ 执行的数据更新操作，离开这个会话后返回至先创建的 _SqlSession_ 会话时，无法感知到它已执行的语句的结果，
-但是如果后创建的 _SqlSession_ 执行了 **flushStatements** 操作，那么先创建的 _SqlSession_ 的后续操作将会感知到它的执行结果。  
-例如如果先创建的 _SqlSession_ 再执行保存相同主键的数据，如果后创建的 _SqlSession_ 针对这条数据没有执行 **flushStatements** ，
-那么执行时不会报错，但是事务提交时会报错，并回滚两个会话的事务；如果后创建的 _SqlSession_ 针对这条数据执行了 **flushStatements** ，
-那么执行时会直接报错。也就是说使用 **flushStatements** 可以让后发生的 _SqlSession_ 的结果被先发生的 _SqlSession_ 感知到。  
-因此，注解 **@BatchInsert** 提供了 _flushStatements_ 参数，默认为true，表示是否预刷入数据库，但哪怕设置成false了，当一次插入的数据大于配置的 _batchSize_ 时，还是会有一部分数据已经预刷入数据库。  
-关于事务问题示例如下:
+上面提到的 **不建议在强事务性业务中使用本插件** ，主要是为了避免大量数据保存的情况下，事务一次提交过多数据导致数据库压力过大，
+应用服务等待时间过长导致的业务接口不稳定的现象。  
+实际上，本插件支持事务的特性，由mybatis自身的特性提供，但是通常我们把事务交给 **spring** 事务管理框架，由 **spring** 统一管理。  
+本插件的核心是使用一个批量模式的 **SqlSession** 执行单条插入的 **MappedStatement** ，但是在实际业务过程中，其他常规的数据库访问
+是有一个默认的 **SqlSession** 实现。**SqlSession**顾名思义就是sql会话，常规思维下，多个会话不能共享数据，事实上也是如此，多个
+**SqlSession** 之间不能直接互相感知对方的操作，但是mybatis对**SqlSession**提供了 _flushStatements()_ 方法，这是个神奇的方法，
+在无事务的情况下执行该方法，数据将会直接写入数据库，在有事务管理的情况下执行该方法，它将会把自己会话里的数据库操作 _‘共享’_ 给当前会话，
+即预执行sql语句，本质上是调用 **Statement** 的 _executeBatch()_ 方法，由各个数据库驱动实现方法逻辑。  
+所以通过_flushStatements()_方法可以实现多个会话间互相感知对方的sql执行情况，并且这些会话也一并由的事务管理器统一控制。  
+综上，本插件的注解 **@BatchInsert** 提供了 _flushStatements_ 参数，默认为true，表示是否预执行，当然但哪怕设置成false了，
+当一次插入的数据大于配置的 _batchSize_ 时，还是会有一部分数据已经预执行。  
+关于事务问题示例如下，假定下面代码都是在spring事务里操作:
 1. 批量保存感知到之前执行的结果
 ```java
 // 直接以主键为1插入数据库，此时是在默认的SqlSession，即先创建的SqlSession里执行
@@ -161,7 +161,8 @@ testMapper.insert(1);
 List<Integer> list = new ArrayList<>();
 list.add(1);
 list.add(2);
-// 假设这是一个批量保存的方法，会创建一个新的SqlSession，但是它能感知到之前insert的数据，所以会抛出主键冲突的异常
+// 假设这是一个批量保存的方法，会创建一个新的SqlSession
+// 如果设置flushStatements为false，它将不会抛出异常，但是在事务提交时抛出异常
 testMapper.batchInsert(list);
 ```
 2. 单个保存感知到批量保存的结果
@@ -169,11 +170,10 @@ testMapper.batchInsert(list);
 List<Integer> list = new ArrayList<>();
 list.add(1);
 list.add(2);
-// 假设这是一个批量保存的方法，会创建一个新的SqlSession
+// 假设这是一个批量保存的方法，并且flushStatements为true
 testMapper.batchInsert(list);
-// 直接以主键为1插入数据库，此时是在默认的SqlSession，即先创建的SqlSession里执行，
+// 直接以主键为1插入数据库，此时是在默认的SqlSession里
 // 由于本插件默认执行了flushStatements，所以这里将会抛出主键冲突异常
-// 如果testMapper.batchInsert配置了flushStatements为false，且执行的数据小于batchSize，则不会抛出异常，而是在事务提交时抛出
 testMapper.insert(1);
 ```
 关于事务的功能测试见sample -> oracle-sample项目，数据库创建表test，修改连接配置后启动，请求web包下的url可以观察事务的产生。

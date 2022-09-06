@@ -20,7 +20,7 @@ void batchInsert(@Param("testPOS") List<TestPO> po);
 > @BatchInsert  
 > void batchInsert(List<TestPO> po);  
 
-上面的代码功能与下面的一致（sql语法因数据库而异）：
+上面的代码功能与下面的一致（sql语法因数据库而异），但是性能更优（见[性能测试(#性能测试)]）：
 
 ```java
 @Insert({"<script>",

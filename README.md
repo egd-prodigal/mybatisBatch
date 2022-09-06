@@ -150,7 +150,7 @@ BatchInsertScanner.scan();
 **SqlSession** 之间不能直接互相感知对方的操作，但是mybatis对**SqlSession**提供了 _flushStatements()_ 方法，这是个神奇的方法，
 在无事务的情况下执行该方法，数据将会直接写入数据库，在有事务管理的情况下执行该方法，它将会把自己会话里的数据库操作 _‘共享’_ 给当前会话，
 即预执行sql语句，本质上是调用 **Statement** 的 _executeBatch()_ 方法，由各个数据库驱动实现方法逻辑。  
-所以通过_flushStatements()_方法可以实现多个会话间互相感知对方的sql执行情况，并且这些会话也一并由的事务管理器统一控制。  
+所以通过 _flushStatements()_ 方法可以实现多个会话间互相感知对方的sql执行情况，并且这些会话也一并由的事务管理器统一控制。  
 综上，本插件的注解 **@BatchInsert** 提供了 _flushStatements_ 参数，默认为true，表示是否预执行，当然但哪怕设置成false了，
 当一次插入的数据大于配置的 _batchSize_ 时，还是会有一部分数据已经预执行。  
 关于事务问题示例如下，假定下面代码都是在spring事务里操作:

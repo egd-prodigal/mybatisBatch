@@ -1,6 +1,6 @@
-package io.github.egd.prodigal.oraclesample.web;
+package io.github.egd.prodigal.postgressample.web;
 
-import io.github.egd.prodigal.oraclesample.service.TestService;
+import io.github.egd.prodigal.postgressample.service.TestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -45,6 +45,7 @@ public class TestController {
             return "在事务提交时才发现异常" + "，数据库现存数据数：" + testService.count();
         }
     }
+
 
     @RequestMapping("/unique3")
     public String unique3() {

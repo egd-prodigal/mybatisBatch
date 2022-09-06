@@ -1,8 +1,8 @@
-package io.github.egd.prodigal.oraclesample.service.impl;
+package io.github.egd.prodigal.postgressample.service.impl;
 
-import io.github.egd.prodigal.oraclesample.entity.TestPO;
-import io.github.egd.prodigal.oraclesample.mapper.ITestMapper;
-import io.github.egd.prodigal.oraclesample.service.TestService;
+import io.github.egd.prodigal.postgressample.entity.TestPO;
+import io.github.egd.prodigal.postgressample.mapper.ITestMapper;
+import io.github.egd.prodigal.postgressample.service.TestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,7 +43,7 @@ public class TestServiceImpl implements TestService {
     @Override
     public int batch2() {
         testMapper.deleteAll();
-        List<TestPO> list =generateList(16);
+        List<TestPO> list = generateList(16);
         testMapper.batchInsert2(list);
         int count = testMapper.count();
         // 设置flushStatements默认为true，最后一页预提交，所以count为16
@@ -84,8 +84,17 @@ public class TestServiceImpl implements TestService {
             // 第二个session感知到了相同的主键并抛出主键冲突的异常
             testMapper.batchInsert2(list);
         } catch (Exception e) {
-            // 执行到插入id为16的数据时发现了异常，由于本方法捕获了异常，所以数据库有16条数据，其中id为16是第一个，后面依次是id从1到15
-            return "batchInsert 执行期间发现了异常，异常发生时会话数据数：" + testMapper.count();
+            // 执行到插入id为16的数据时发现了异常，由于本方法捕获了异常，所以数据库有11条数据，其中id为16是第一个，后面依次是id从1到10
+            // 因为mysql是的批量执行是要么一起成功要么一起失败
+            try {
+                testPO.setId(17);
+                testPO.setName("unique");
+                // 第一个sqlSession保存了id为16的数据，但是预提交
+                testMapper.insert(testPO);
+            } catch (Exception ex) {
+                return "batchInsert 执行期间异常后再次尝试操作数据库报错，错误内容：" + ex.getMessage();
+            }
+            return "batchInsert 执行期间发现了异常";
         }
         return "success";
     }

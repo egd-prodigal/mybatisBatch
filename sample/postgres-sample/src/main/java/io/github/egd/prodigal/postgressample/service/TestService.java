@@ -1,4 +1,4 @@
-package io.github.egd.prodigal.oraclesample.service;
+package io.github.egd.prodigal.postgressample.service;
 
 import java.util.Date;
 

@@ -1,8 +1,8 @@
-package io.github.egd.prodigal.oraclesample.service.impl;
+package io.github.egd.prodigal.mysqlsample.service.impl;
 
-import io.github.egd.prodigal.oraclesample.entity.TestPO;
-import io.github.egd.prodigal.oraclesample.mapper.ITestMapper;
-import io.github.egd.prodigal.oraclesample.service.TestService;
+import io.github.egd.prodigal.mysqlsample.entity.TestPO;
+import io.github.egd.prodigal.mysqlsample.mapper.ITestMapper;
+import io.github.egd.prodigal.mysqlsample.service.TestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -84,7 +84,8 @@ public class TestServiceImpl implements TestService {
             // 第二个session感知到了相同的主键并抛出主键冲突的异常
             testMapper.batchInsert2(list);
         } catch (Exception e) {
-            // 执行到插入id为16的数据时发现了异常，由于本方法捕获了异常，所以数据库有16条数据，其中id为16是第一个，后面依次是id从1到15
+            // 执行到插入id为16的数据时发现了异常，由于本方法捕获了异常，所以数据库有11条数据，其中id为16是第一个，后面依次是id从1到10
+            // 因为mysql是的批量执行是要么一起成功要么一起失败
             return "batchInsert 执行期间发现了异常，异常发生时会话数据数：" + testMapper.count();
         }
         return "success";

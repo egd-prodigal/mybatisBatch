@@ -139,6 +139,8 @@ BatchInsertScanner.scan();
 > 1|batch|10537|foreach|13239
 > 2|batch|8927|foreach|12498
 > 3|batch|10699|foreach|14566
+> 
+> 注：Mysql和Oracle在批处理的机制上也存在区别，在事务问题里有提及。
 
 ### 事务问题
 
@@ -149,8 +151,9 @@ BatchInsertScanner.scan();
 是有一个默认的 **SqlSession** 实现。**SqlSession**顾名思义就是sql会话，常规思维下，多个会话不能共享数据，事实上也是如此，多个
 **SqlSession** 之间不能直接互相感知对方的操作，但是mybatis对**SqlSession**提供了 _flushStatements()_ 方法，这是个神奇的方法，
 在无事务的情况下执行该方法，数据将会直接写入数据库，在有事务管理的情况下执行该方法，它将会把自己会话里的数据库操作 _‘共享’_ 给当前会话，
-即预执行sql语句，本质上是调用 **Statement** 的 _executeBatch()_ 方法，由各个数据库驱动实现方法逻辑。  
-所以通过 _flushStatements()_ 方法可以实现多个会话间互相感知对方的sql执行情况，并且这些会话也一并由的事务管理器统一控制。  
+即预执行sql语句，本质上是调用 **Statement** 的 _executeBatch()_ 方法，由各个数据库驱动实现方法逻辑，因此本插件对事务对控制的实际表现
+也因数据库而异，但不管使用什么数据库，普通操作方法跟批处理操作都被一个事务管理着，要么一起成功要么一起失败。    
+所以通过 _flushStatements()_ 方法可以实现多个会话间互相感知对方对数据库的操作，并且这些会话也被相同的事务管理器控制。  
 综上，本插件的注解 **@BatchInsert** 提供了 _flushStatements_ 参数，默认为true，表示是否预执行，当然但哪怕设置成false了，
 当一次插入的数据大于配置的 _batchSize_ 时，还是会有一部分数据已经预执行。  
 关于事务问题示例如下，假定下面代码都是在spring事务里操作:
@@ -176,7 +179,11 @@ testMapper.batchInsert(list);
 // 由于本插件默认执行了flushStatements，所以这里将会抛出主键冲突异常
 testMapper.insert(1);
 ```
-关于事务的功能测试见sample -> oracle-sample项目，数据库创建表test，修改连接配置后启动，请求web包下的url可以观察事务的产生。
+关于事务的功能测试见sample -> oracle-sample项目、sample -> mysql-sample项目和sample -> postgre-sample项目，
+数据库创建表test，修改连接配置后启动，请求web包下的url可以观察事务的产生。
+> 区别：在实际测试中，批处理执行时如果有如主键冲突的报错，oracle在会话里共享到的数据更新数时执行到具体的那一条上一条的数量，
+> mysql在会话里共享到上一批批处理成功的数量，postgres直接把当前事务设置成aborted，后续无法对继续访问数据库，但如果捕获异常，
+> 可以让事务正常提交至执行报错的那一条上一条
 
 ### 其他
 Mybatis-Plus已经实现了本插件提供的功能，考虑到项目组开发习惯，并未引入Mybatis-Plus，故而开发此插件。  

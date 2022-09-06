@@ -9,4 +9,15 @@
         values (#{po.id}, #{po.name})
     </insert>
 
+    <delete id="deleteAll">
+        <choose>
+            <when test="_databaseId == 'oracle'">
+                truncate table test
+            </when>
+            <otherwise>
+                delete from test
+            </otherwise>
+        </choose>
+    </delete>
+
 </mapper>

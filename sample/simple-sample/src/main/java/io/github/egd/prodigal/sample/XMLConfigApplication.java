@@ -21,7 +21,7 @@ public class XMLConfigApplication {
             // 初始化SqlSessionFactory
             String resource = "mybatis-config.xml";
             InputStream inputStream = Resources.getResourceAsStream(resource);
-            sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
+            sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream, "h2");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -33,7 +33,6 @@ public class XMLConfigApplication {
     public static void main(String[] args) {
         try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
             ITestMapper testMapper = sqlSession.getMapper(ITestMapper.class);
-
             testMapper.deleteAll();
             sqlSession.commit();
 
@@ -46,12 +45,6 @@ public class XMLConfigApplication {
                 list.add(po);
             }
             long start = System.currentTimeMillis();
-            int i = testMapper.batchInsert2(list);
-            System.out.println("batchCount: " + i);
-
-            testMapper.deleteAll();
-            sqlSession.commit();
-
             testMapper.batchInsert(list);
             System.out.println("batch: " + (System.currentTimeMillis() - start));
             System.out.println("count: " + testMapper.count());

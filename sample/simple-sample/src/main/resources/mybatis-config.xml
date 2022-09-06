@@ -8,8 +8,8 @@
         <plugin interceptor="io.github.egd.prodigal.mybatis.batch.plugins.BatchInsertInterceptor"/>
     </plugins>
 
-    <environments default="development">
-        <environment id="development">
+    <environments default="h2">
+        <environment id="h2">
             <transactionManager type="JDBC"/>
             <dataSource type="POOLED">
                 <property name="driver" value="org.h2.Driver"/>
@@ -18,7 +18,21 @@
                 <property name="password" value="sa"/>
             </dataSource>
         </environment>
+        <environment id="oracle">
+            <transactionManager type="JDBC"/>
+            <dataSource type="POOLED">
+                <property name="driver" value="oracle.jdbc.driver.OracleDriver"/>
+                <property name="url" value="jdbc:oracle:thin:@localhost:1521:helowin"/>
+                <property name="username" value="test"/>
+                <property name="password" value="test"/>
+            </dataSource>
+        </environment>
     </environments>
+
+    <databaseIdProvider type="DB_VENDOR">
+        <property name="DB2" value="db2"/>
+        <property name="Oracle" value="oracle" />
+    </databaseIdProvider>
 
     <mappers>
         <mapper resource="mapper/ITestMapper.xml"/>

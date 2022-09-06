@@ -12,7 +12,7 @@ public interface ITestMapper {
     int insert(@Param("po") TestPO po);
 
     @Insert({"insert into test (id, name)", "values", "(#{po.id}, #{po.name})"})
-    @BatchInsert(collection = "testPOS", item = "po", batchSize = 10, flushStatements = true)
+    @BatchInsert(collection = "testPOS", item = "po", batchSize = 1000, flushStatements = true)
     void batchInsert(@Param("testPOS") List<TestPO> po);
 
     @BatchInsert(insert = "insert", collection = "testPOS", item = "po", batchSize = 10)
@@ -28,12 +28,10 @@ public interface ITestMapper {
     @Select("select * from test")
     List<TestPO> queryAll();
 
-    @Delete("delete from test")
     void deleteAll();
 
     @Select("select count(*) from test")
     int count();
-
 
     class Provider {
 

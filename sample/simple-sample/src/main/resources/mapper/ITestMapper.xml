@@ -11,13 +11,30 @@
 
     <delete id="deleteAll">
         <choose>
-            <when test="_databaseId == 'oracle'">
-                truncate table test
+            <when test="_databaseId == 'h2'">
+                delete from test
             </when>
             <otherwise>
-                delete from test
+                truncate table test
             </otherwise>
         </choose>
     </delete>
+
+    <insert id="foreachInsert" parameterType="io.github.egd.prodigal.sample.TestPO">
+        <choose>
+            <when test="_databaseId == 'oracle'">
+                insert into test (id, name)
+                <foreach collection="list" item="po" open="(" close=")" separator="union all">
+                    select #{po}, #{po} from dual
+                </foreach>
+            </when>
+            <otherwise>
+                insert into test(id, name) values
+                <foreach collection='testPOS' item='po' open="(" close=")" separator=','>
+                    #{po.id}, #{po.name}
+                </foreach>
+            </otherwise>
+        </choose>
+    </insert>
 
 </mapper>

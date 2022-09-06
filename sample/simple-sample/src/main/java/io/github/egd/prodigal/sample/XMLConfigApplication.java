@@ -1,36 +1,16 @@
 package io.github.egd.prodigal.sample;
 
-import io.github.egd.prodigal.mybatis.batch.core.BatchInsertContext;
-import io.github.egd.prodigal.mybatis.batch.core.BatchInsertScanner;
-import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 public class XMLConfigApplication {
 
-    private static final SqlSessionFactory sqlSessionFactory;
-
-    static {
-        try {
-            // 初始化SqlSessionFactory
-            String resource = "mybatis-config.xml";
-            InputStream inputStream = Resources.getResourceAsStream(resource);
-            sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream, "h2");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        BatchInsertContext.setSqlSessionFactory(sqlSessionFactory);
-        BatchInsertScanner.addClass(ITestMapper.class);
-        BatchInsertScanner.scan();
-    }
 
     public static void main(String[] args) {
+        SqlSessionFactory sqlSessionFactory = SimpleSampleUtils.getSqlSessionFactory("oracle");
         try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
             ITestMapper testMapper = sqlSession.getMapper(ITestMapper.class);
             testMapper.deleteAll();

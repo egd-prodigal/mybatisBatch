@@ -25,6 +25,8 @@ public interface ITestMapper {
     @BatchInsert(collection = "testPOS", item = "po", batchSize = 10)
     void xmlBatchInsert(@Param("testPOS") List<TestPO> po);
 
+    void foreachInsert(@Param("testPOS") List<TestPO> po);
+
     @Select("select * from test")
     List<TestPO> queryAll();
 

@@ -2,17 +2,23 @@
 
 Batch Insert for Mybatis Mybatis 批量保存插件，提供更简化的批量insert插件
 
-## 使用方式
+## 使用指导
 
 ### 编码方式
-在Mapper的批量插入方法上加上注解 **@BatchInsert** ，注解参数 _collection_ 表示方法入参的集合对象，注解参数 _item_
-表示sql里的参数对象，_batchSize_ 表示批量提交的数量，如下所示：
+在Mapper里用做批量插入方法上加上注解 **@BatchInsert** ，并且这个方法映射的sql语句使用单条数据保存的，
+注解参数 _collection_ 表示方法入参的集合对象，注解参数 _item_
+表示sql里的参数对象，_batchSize_ 表示批量提交的数量，默认500，如下所示：
 
 ```java
 @Insert({"insert into test (id, name)", "values", "(#{po.id}, #{po.name})"})
 @BatchInsert(collection = "testPOS", item = "po", batchSize = 1000)
 void batchInsert(@Param("testPOS") List<TestPO> po);
 ```
+> 如果只有一个集合入参，可以不配置 **@Param**，并且不指定 _collection_，如果sql语句里的参数没有明确指定参数名， 可以不指定 _item_，
+> 批量提交的数量也可以不指定值，如下所示：  
+> @Insert("insert into test (id, name) values (#{id}, #{name})")  
+> @BatchInsert  
+> void batchInsert(List<TestPO> po);  
 
 上面的代码功能与下面的一致（sql语法因数据库而异）：
 

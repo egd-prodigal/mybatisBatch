@@ -89,13 +89,22 @@ public class BatchInsertInterceptor implements Interceptor {
         }
         // 这是方法入参，由开发者编写Mapper接口里的方法生成，正常情况下的调用都会是一个ParamMap类型的参数
         Object object = argsObjects[1];
-        if (!(object instanceof ParamMap)) {
+        // 3.5.5之前的版本大都是DefaultSqlSession#StrictMap，后面的版本大都是MapperMethod#ParamMap，兼容两者
+        if (object instanceof HashMap) {
+            // 非mybatis提供的HashMap类型的入参
+            if (!object.getClass().getName().startsWith("org.apache.ibatis")) {
+                return invocation.proceed();
+            }
+        } else {
             return invocation.proceed();
         }
-        // 获取集合参数
-        Collection<?> itemList = getItemList((ParamMap<?>) object, batchInsert);
+//        if (!(object instanceof ParamMap || object instanceof DefaultSqlSession.StrictMap)) {
+//            return invocation.proceed();
+//        }
+        // 获取集合参数，
+        Collection<?> itemList = getItemList((HashMap<?, ?>) object, batchInsert);
         // 执行批量保存
-        return invokeBatchInsert(mappedStatement, batchInsert, itemList, (ParamMap<?>) object);
+        return invokeBatchInsert(mappedStatement, batchInsert, itemList, (HashMap<?, ?>) object);
     }
 
     /**
@@ -107,7 +116,7 @@ public class BatchInsertInterceptor implements Interceptor {
      * @param paramMap        其他参数
      * @return Object，一般都是void
      */
-    private Object invokeBatchInsert(MappedStatement mappedStatement, BatchInsert batchInsert, Collection<?> itemList, ParamMap<?> paramMap) {
+    private Object invokeBatchInsert(MappedStatement mappedStatement, BatchInsert batchInsert, Collection<?> itemList, HashMap<?, ?> paramMap) {
         int updateCounts = 0;
         // 先获取SqlSession，必须是Batch模式的
         SqlSession sqlSession = openSession(batchInsert.flushStatements());
@@ -123,7 +132,7 @@ public class BatchInsertInterceptor implements Interceptor {
             boolean hasItemName = !"".equals(item);
             if (hasItemName) {
                 // 指定了单个对象名字，则入参一定是objectParamMap
-                objectParamMap.putAll(paramMap);
+                paramMap.forEach((k, v) -> objectParamMap.put(((String) k), v));
             }
             // 设置单条保存MappedStatementId，允许开发者指定一个当前接口类里的其他方法
             String statement;
@@ -176,7 +185,7 @@ public class BatchInsertInterceptor implements Interceptor {
      * @param batchInsert 批量保存注解
      * @return List<?>
      */
-    private Collection<?> getItemList(ParamMap<?> paramMap, BatchInsert batchInsert) {
+    private Collection<?> getItemList(HashMap<?, ?> paramMap, BatchInsert batchInsert) {
         Collection<?> itemList;
         // 先从注解配置的collection获取参数
         String collection = batchInsert.collection();

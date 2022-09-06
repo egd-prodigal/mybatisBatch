@@ -5,7 +5,7 @@ Batch Insert for Mybatis Mybatis 批量保存插件，提供更简化的批量in
 ## 使用指导
 
 ### 编码方式
-在Mapper里用做批量插入的方法上添加注解 **@BatchInsert** ，并且这个方法映射的sql语句使用单条数据保存的，
+在Mapper里用做批量保存的方法上添加注解 **@BatchInsert** ，并且这个方法映射的sql语句使用单条数据保存的，
 注解参数 _collection_ 表示方法入参的集合对象，注解参数 _item_
 表示sql里的参数对象，_batchSize_ 表示批量提交的数量，默认500，如下所示：
 
@@ -132,7 +132,7 @@ BatchInsertScanner.scan();
 上面提到的 **不大建议在强事务性业务中使用本插件** ，注意有个 **'强'**，主要是为了避免大量数据保存的情况下，事务一次提交过多数据导致数据库压力过大，
 应用服务等待时间过长导致的业务接口不稳定的现象。  
 实际上，本插件支持事务的特性，由mybatis自身的特性提供，但是通常我们把事务交给 **spring** 事务管理框架，由 **spring** 统一管理。  
-本插件的核心是使用一个批量模式的 **SqlSession** 执行单条插入的 **MappedStatement** ，但是在实际业务过程中，其他常规的数据库访问
+本插件的核心是使用一个批量模式的 **SqlSession** 执行单条保存的 **MappedStatement** ，但是在实际业务过程中，其他常规的数据库访问
 是有一个默认的 **SqlSession** 实现。**SqlSession**顾名思义就是sql会话，常规思维下，多个会话不能共享数据，事实上也是如此，多个
 **SqlSession** 之间不能直接互相感知对方的操作，但是mybatis对**SqlSession**提供了 _flushStatements()_ 方法，这是个神奇的方法，
 在无事务的情况下执行该方法，数据将会直接写入数据库，在有事务管理的情况下执行该方法，它将会把自己会话里的数据库操作 _‘共享’_ 给当前会话，
@@ -140,11 +140,11 @@ BatchInsertScanner.scan();
 也因数据库而异，但不管使用什么数据库，普通操作方法跟批处理操作都被一个事务管理着，要么一起成功要么一起失败。    
 所以通过 _flushStatements()_ 方法可以实现多个会话间互相感知对方对数据库的操作，并且这些会话也被相同的事务管理器控制。  
 综上，本插件的注解 **@BatchInsert** 提供了 _flushStatements_ 参数，默认为true，表示是否预执行，当然但哪怕设置成false了，
-当一次插入的数据大于配置的 _batchSize_ 时，还是会有一部分数据已经预执行。  
+当一次保存的数据大于配置的 _batchSize_ 时，还是会有一部分数据已经预执行。  
 关于事务问题示例如下，假定下面代码都是在spring事务里操作:
 1. 批量保存感知到之前执行的结果
 ```java
-// 直接以主键为1插入数据库，此时是在默认的SqlSession，即先创建的SqlSession里执行
+// 直接以主键为1保存数据库，此时是在默认的SqlSession，即先创建的SqlSession里执行
 testMapper.insert(1);
 List<Integer> list = new ArrayList<>();
 list.add(1);
@@ -160,7 +160,7 @@ list.add(1);
 list.add(2);
 // 假设这是一个批量保存的方法，并且flushStatements为true
 testMapper.batchInsert(list);
-// 直接以主键为1插入数据库，此时是在默认的SqlSession里
+// 直接以主键为1保存数据库，此时是在默认的SqlSession里
 // 由于本插件默认执行了flushStatements，所以这里将会抛出主键冲突异常
 testMapper.insert(1);
 ```
@@ -175,8 +175,8 @@ testMapper.insert(1);
 
 实测batch方式性能方面以明显的优势胜出，并且从编码难度来看，batch方式显然更友好。
 > 性能测试数据  
-> 一次性插入1000_000条数据，1000条一批（batch方式由插件自行轮询，foreach手动分页），测试3次，batch与foreach方式耗时如下：  
-> mysql数据库（注意mysql数据库连接字符串一定要加上参数:  **rewriteBatchedStatements=true**，否则批量插入无效）：  
+> 一次性保存1000_000条数据，1000条一批（batch方式由插件自行轮询，foreach手动分页），测试3次，batch与foreach方式耗时如下：  
+> mysql数据库（注意mysql数据库连接字符串一定要加上参数:  **rewriteBatchedStatements=true**，否则批量保存无效）：  
 > 次数|batch耗时（毫秒）|foreach耗时（毫秒）
 > ----|----|----
 > 1|39509|46933

@@ -13,6 +13,7 @@ import org.apache.ibatis.session.SqlSession;
 
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -33,10 +34,15 @@ public class BatchInsertInterceptor implements Interceptor {
      */
     private final Map<String, Class<?>> mapperClassMap = new HashMap<>();
 
+//    /**
+//     * 非spring模式下缓存MappedStatement的方法
+//     */
+//    private final Map<String, Method> mapperMethodMap = new HashMap<>();
+
     /**
-     * 非spring模式下缓存MappedStatement的方法
+     * 非spring模式下缓存mapper的类和方法<key1:mapper类<key2：methodName>>
      */
-    private final Map<String, Method> mapperMethodMap = new HashMap<>();
+    private final Map<Class<?>, Map<String, Method>> mapperClassMethodMap = new HashMap<>();
 
     /**
      * <p>拦截方法，一切的入口，由此发生</p>
@@ -231,20 +237,17 @@ public class BatchInsertInterceptor implements Interceptor {
      */
     private Method findMapperMethod(String id, Class<?> mapperClass) {
         // todo 最终获取method为空，以后就不再从类里面获取了，直接返回null
-        Method method = mapperMethodMap.get(id);
-        if (method == null) {
-            String methodName = id.substring(id.lastIndexOf(".") + 1);
+        //如果是null，说明没获取过
+        Map<String, Method> methodMap = mapperClassMethodMap.get(mapperClass);
+        if (methodMap == null) {
             Method[] methods = mapperClass.getDeclaredMethods();
-            for (Method m : methods) {
-                if (methodName.equals(m.getName())) {
-                    method = m;
-                    mapperMethodMap.put(id, method);
-                    break;
-                }
-            }
+            methodMap = Arrays.stream(methods).collect(Collectors.toMap(Method::getName, method -> method));
+            mapperClassMethodMap.put(mapperClass, methodMap);
         }
-        // 允许找不到
-        return method;
+
+        //获取过
+        String methodName = id.substring(id.lastIndexOf(".") + 1);
+        return mapperClassMethodMap.get(mapperClass).get(methodName);
     }
 
     /**

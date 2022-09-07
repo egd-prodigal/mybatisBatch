@@ -10,9 +10,17 @@ Batch Insert for Mybatis，提供更简化的基于 **mybatis** 的数据库批�
 ## 使用指导
 
 ### 编码方式
-在Mapper里用做批量保存的方法上添加注解 **@BatchInsert** ，并且这个方法映射的sql语句使用单条数据保存的，
-注解参数 _collection_ 表示方法入参的集合对象，注解参数 _item_
-表示sql里的参数对象，_batchSize_ 表示批量提交的数量，默认500，如下所示：
+在Mapper里用做批量保存的方法上添加注解 **@BatchInsert** ，并且这个方法映射的sql语句是单条数据保存。  
+注解参数简单说明：
+字段|格式|用途说明
+----|----|----
+collection|String|表示方法入参的集合对象，与方法入参里表示实体类集合参数的@Param注解的值一致
+item|String|sql语句里的对象名
+batchSize|int|分页提交的数量，默认500
+insert|String|指定的单条插入方法名，可以为空
+flushStatements|boolean|是否预执行sql，默认为true
+
+示例代码：
 
 ```java
 @Insert({"insert into test (id, name)", "values", "(#{po.id}, #{po.name})"})
@@ -20,12 +28,12 @@ Batch Insert for Mybatis，提供更简化的基于 **mybatis** 的数据库批�
 void batchInsert(@Param("testPOS") List<TestPO> po);
 ```
 > 如果只有一个集合入参，可以不配置 **@Param**，并且不指定 _collection_，如果sql语句里的参数没有明确指定参数名， 可以不指定 _item_，
-> 批量提交的数量也可以不指定值，如下所示：  
+> 批量提交的数量也可以不指定值，下面的代码与上面代码的将会达到相同的效果：  
 > @Insert("insert into test (id, name) values (#{id}, #{name})")  
 > @BatchInsert  
 > void batchInsert(List<TestPO> po);  
 
-上面的代码功能与下面的一致（sql语法因数据库而异），但是性能更优（见[性能测试](#性能测试)）：
+上面的两段代码功能与下面的一致（sql语法因数据库而异），但是性能更优（见[性能测试](#性能测试)）：
 
 ```java
 @Insert({"<script>",
@@ -38,21 +46,20 @@ void forEachInsert(@Param("testPOS") List<TestPO> po);
 ```
 
 除了基于 **@Insert** 注解的编程方式，还支持 **@InsertProvider** 和 **xml** 的方式，只需在对应的Mapper接口的方法上增加 **@BatchInsert** 注解即可。  
-另外，**@BatchInsert** 还提供了一个参数 _insert_ ，用以指明单条保存的方法，这样批量保存方法可以不用写@Insert以及sql代码，使用方式如下所示：
+参数 _insert_ ，指定的单条插入方法名，这个方法一定要在当前Mapper里存在，并且单个保存方法的参数是批量保存参数的子集，
+这样批量保存方法可以不用写@Insert以及sql代码，使用方式如下所示：
 
 ```java
-@Insert({"insert into test (id, name)", "values", "(#{po.id}, #{po.name})"})
-void insertOne(@Param("po") TestPO po);
+@Insert({"insert into ${tableName} (id, name)", "values", "(#{po.id}, #{po.name})"})
+void insertOne(@Param("tableName") String tableName, @Param("po") TestPO po);
 
-// 这个方法可以不写@Insert注解了，insertOne指上面的那个方法
-// 方法入参集合的对象类型可以不用跟insertOne一致，只要拥有必要的属性就行
-// item必须要跟insertOne里配置的一致
+// item必须要跟insertOne的sql语句里的对象名一致
 @BatchInsert(insert = "insertOne", collection = "testPOS", item = "po", batchSize = 1000)
-void batchInsert(@Param("testPOS") List<TestPO> po);
+void batchInsert(@Param("tableName") String tableName, @Param("unused") String unused, @Param("testPOS") List<TestPO> po);
 ```
 
 **@BatchInsert** 注解使用时，如果指定了 _insert_ 参数的同时，方法也拥有 **@Insert** 注解，取 _insert_ 参数配置的方法。  
-启动时不会检查正确性，后续可以考虑加上部分校验规则，如果编写有误，将会在执行时抛出相应异常。
+启动时不会检查正确性，如果编写有误，将会在执行时抛出相应异常。
 
 > 注意：  
 > 1. 由于本项目的批量是基于Mybatis的BATCH模式，并手动批量提交已执行的部分sql， **不大建议在强事务性业务中使用本插件** ，如果使用中遇到了问题，欢迎联系开发者共同学习。  
@@ -120,10 +127,10 @@ void batchInsert(@Param("testPOS") List<TestPO> po);
 </plugins>
 ```
 
-编写mybatis初始化代码，基于xml配置生成SqlSessionFactory，然后添加如下代码：
+编写mybatis初始化代码，基于xml配置生成SqlSessionFactory，没有基于xml配置生成的，请自行添加插件，然后在执行数据访问代码前编写如下代码：
 
 ```java
-// 此处的sqlSessionFactory在之前的代码里生成，也可以是spring项目注入进来的
+// 此处的sqlSessionFactory在之前的代码里生成
 BatchInsertContext.setSqlSessionFactory(sqlSessionFactory);
 // 添加拥有批量保存方法的Mapper接口类，可以传多个类，可以在任意位置调用
 BatchInsertScanner.addClass(ITestMapper.class);
@@ -135,7 +142,7 @@ BatchInsertScanner.scan();
 
 ### spring-batch 
 **这一段与本插件基本没有关系** 。spring批处理组件，使用这个组件的用户，大概率不需要使用本插件，这里只是提供另外一种mybatis批量保存的方式。  
-编写代码手动装配要进行批量保存的 **MyBatisBatchItemWriter** ，项目要先引入 _spring-batch_ 相关依赖：
+编写代码手动装配要进行批量保存的 **MyBatisBatchItemWriter** ，示例代码：
 ```java
 @Bean
 public MyBatisBatchItemWriter<TestPO> itemWriter() {
@@ -148,7 +155,7 @@ public MyBatisBatchItemWriter<TestPO> itemWriter() {
    return itemWriterBuilder.build();
 }
 ```
-此处有一个注意点，如果单个保存的方法，方法入参没有指定 **@Param** 注解，上面的代码就可以了，但是如果指定了 **@Param** 注解，那么还需要额外
+如果单个保存的方法，方法入参没有指定 **@Param** 注解，上面的代码就可以了，但是如果指定了 **@Param** 注解，那么还需要额外
 设置 _itemWriterBuilder_ 的 _itemToParameterConverter_ ，如下所示：
 ```java
 itemWriterBuilder.itemToParameterConverter(testPO -> {
@@ -158,25 +165,25 @@ itemWriterBuilder.itemToParameterConverter(testPO -> {
    return paramMap;
 });
 ```
-这样就可以在业务中使用 **MyBatisBatchItemWriter** 执行批量保存的逻辑，但是关于它的事务问题，请自行研究。
+这样就可以在业务中使用 **MyBatisBatchItemWriter** 执行批量保存的逻辑，但是关于它的事务问题，请自行研究，下面的内容仅供参考。
 ### 事务问题
 
 上面提到的 **不大建议在强事务性业务中使用本插件** ，注意 **'强事务性业务'**，是为了避免大量数据保存的情况下，事务一次提交过多数据导致数据库压力过大，
 事务提交缓慢并长期占用数据库连接资源，应用服务等待时间过长导致整体业务服务不稳定的现象。  
 实际上，本插件支持事务的特性，由mybatis自身的特性提供，但是通常我们把事务交给 **spring** 事务管理框架，由 **spring** 统一管理。  
-本插件的核心是使用一个批量模式的 **SqlSession** 执行单条保存的 **MappedStatement** ，但是在实际业务过程中，其他正常的数据库访问
-使用默认的 **SqlSession** 实现。  
+本插件的核心是使用一个批量模式的 **SqlSession** 执行单条保存的 **MappedStatement** ，但是在实际业务过程中，其他正常的数据库访问使用默认的 **SqlSession** 实现。
 **SqlSession**顾名思义就是sql会话，正常思维下，多个会话不能共享数据，事实上也是如此，多个**SqlSession** 之间不能直接互相感知对方的操作，
 但是mybatis对**SqlSession**提供了 _flushStatements()_ 方法，这是个神奇的方法， 在无事务的情况下执行该方法，数据将会直接写入数据库，
-在有事务管理的情况下执行该方法，它将会把自己会话里的数据库操作 _‘共享’_ 给当前事务，而每个会话都能从当前事务里感知到数据库操作，即会话共享事务，
-这个方法底层是调用 **java.sql.Statement** 的 _executeBatch()_ 方法，由各个数据库驱动实现方法逻辑，因此本插件对事务控制的实际表现也因数据库而异，
-但不管使用什么数据库，普通数据库访问方法跟批量模式下的操作都被一个事务管理着，要么一起成功要么一起失败。    
+在有事务管理的情况下执行该方法，它将会把自己会话里的数据库操作 _“共享”_ 给当前事务，而每个会话都能从当前事务里感知到数据库操作，即“_会话分享事务_”，
+这个方法最终是调用 **java.sql.Statement** 的 _executeBatch()_ 方法，由各个数据库驱动实现方法逻辑，因此本插件对事务控制的实际表现也因数据库而异，
+但不管使用什么数据库，常规的数据库读写操作跟批量模式下的读写操作都被一个事务管理着，要么一起成功要么一起失败。    
 因此通过 _flushStatements()_ 方法可以实现多个会话间互相感知对方对数据库的操作，并且这些会话也被相同的事务管理器控制。 
  
-综上，本插件的注解 **@BatchInsert** 提供了 _flushStatements_ 参数，默认为true，表示是否预执行sql，当然但哪怕设置成false了，
-当一次保存的数据大于配置的 _batchSize_ 时，还是会有一部分数据已经预执行，并且在执行批量保存方法前也会获取当前事务里的其他 **SqlSession**，
-并执行其 _flushStatements()_ 方法，以便在批量保存的会话里感知到事务里的其他sql执行操作。  
-关于事务问题示例如下，假定下面代码都是在spring事务里操作:
+综上，本插件的注解 **@BatchInsert** 提供了 _flushStatements_ 参数，默认为true，表示是否执行sql，当然但哪怕设置成false了，
+当一次保存的数据大于配置的 _batchSize_ 时，还是会有一部分数据已经被执行，同时在执行批量保存方法前会获取当前事务里的默认 **SqlSession**，
+并执行它的 _flushStatements()_ 方法，以批量保存的会话能够正常同步到事务里已经执行的更新操作，并且使批量保存的执行结果能够即时共享给事务，
+并且让外部默认的会话也能同感知到批量执行的结果，一个事务里的多个批量保存方法使用相同的会话。    
+关于事务问题示例如下，假定下面代码都是在spring事务里执行:
 1. 批量保存感知到之前执行的结果
 ```java
 // 直接以主键为1保存数据库，此时是在默认的SqlSession
@@ -333,6 +340,11 @@ assert count = 100;
 </tbody>
 </table>
 
+### 更新日志
+我们将会再添加启动校验逻辑后发布一个release版本，后续再根据实际改动添加更新日志。
+
+#### 后续计划
+批量保存将支持java8 Stream入参
 
 ### 其他
 Mybatis-Plus已经实现了本插件提供的功能，考虑到项目组开发习惯，并未引入Mybatis-Plus，故而开发此插件。  

@@ -42,7 +42,7 @@
                 <property name="driver" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
                 <property name="url" value="jdbc:sqlserver://localhost:1433"/>
                 <property name="username" value="sa"/>
-                <property name="password" value="123456"/>
+                <property name="password" value="Aa123$%^"/>
             </dataSource>
         </environment>
         <environment id="postgre">

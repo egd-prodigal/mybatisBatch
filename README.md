@@ -168,7 +168,7 @@ itemWriterBuilder.itemToParameterConverter(testPO -> {
 使用默认的 **SqlSession** 实现。  
 **SqlSession**顾名思义就是sql会话，正常思维下，多个会话不能共享数据，事实上也是如此，多个**SqlSession** 之间不能直接互相感知对方的操作，
 但是mybatis对**SqlSession**提供了 _flushStatements()_ 方法，这是个神奇的方法， 在无事务的情况下执行该方法，数据将会直接写入数据库，
-在有事务管理的情况下执行该方法，它将会把自己会话里的数据库操作 _‘共享’_ 给当前事务，而每个会话都能从当前事务里感知到数据库操作，即事务共享会话，
+在有事务管理的情况下执行该方法，它将会把自己会话里的数据库操作 _‘共享’_ 给当前事务，而每个会话都能从当前事务里感知到数据库操作，即会话共享事务，
 这个方法底层是调用 **java.sql.Statement** 的 _executeBatch()_ 方法，由各个数据库驱动实现方法逻辑，因此本插件对事务控制的实际表现也因数据库而异，
 但不管使用什么数据库，普通数据库访问方法跟批量模式下的操作都被一个事务管理着，要么一起成功要么一起失败。    
 因此通过 _flushStatements()_ 方法可以实现多个会话间互相感知对方对数据库的操作，并且这些会话也被相同的事务管理器控制。 
@@ -247,88 +247,88 @@ assert count = 100;
 <thead>
     <tr>
         <th rowspan='2'></th>
-        <th colspan='2' stype="text-align: center">mysql</th>
-        <th colspan='2' stype="text-align: center">oracle</th>
-        <th colspan='2' stype="text-align: center">mssql</th>
-        <th colspan='2' stype="text-align: center">postgre</th>
+        <th colspan='2' style="text-align: center">mysql</th>
+        <th colspan='2' style="text-align: center">oracle</th>
+        <th colspan='2' style="text-align: center">postgre</th>
+        <th colspan='2' style="text-align: center">mssql</th>
     </tr>
     <tr>
-        <th stype="text-align: center">batch</th>
-        <th stype="text-align: center">foreach</th>
-        <th stype="text-align: center">batch</th>
-        <th stype="text-align: center">foreach</th>
-        <th stype="text-align: center">batch</th>
-        <th stype="text-align: center">foreach</th>
-        <th stype="text-align: center">batch</th>
-        <th stype="text-align: center">foreach</th>
+        <th style="text-align: center">batch</th>
+        <th style="text-align: center">foreach</th>
+        <th style="text-align: center">batch</th>
+        <th style="text-align: center">foreach</th>
+        <th style="text-align: center">batch</th>
+        <th style="text-align: center">foreach</th>
+        <th style="text-align: center">batch</th>
+        <th style="text-align: center">foreach</th>
     </tr>
 </thead>
 <tbody>
     <tr>
-        <td stype="text-align: center">1</td>
-        <td stype="text-align: center">14399</td>
-        <td stype="text-align: center">18810</td>
-        <td stype="text-align: center">8236</td>
-        <td stype="text-align: center">9002</td>
-        <td stype="text-align: center">待测试</td>
-        <td stype="text-align: center">待测试</td>
-        <td stype="text-align: center">待测试</td>
-        <td stype="text-align: center">待测试</td>
+        <td style="text-align: center">1</td>
+        <td style="text-align: center">14399</td>
+        <td style="text-align: center">18810</td>
+        <td style="text-align: center">8236</td>
+        <td style="text-align: center">9002</td>
+        <td style="text-align: center">15971</td>
+        <td style="text-align: center">18763</td>
+        <td style="text-align: center">20293</td>
+        <td style="text-align: center">26365</td>
     <tr>
     <tr>
-        <td stype="text-align: center">2</td>
-        <td stype="text-align: center">13797</td>
-        <td stype="text-align: center">18365</td>
-        <td stype="text-align: center">8457</td>
-        <td stype="text-align: center">8556</td>
-        <td stype="text-align: center">待测试</td>
-        <td stype="text-align: center">待测试</td>
-        <td stype="text-align: center">待测试</td>
-        <td stype="text-align: center">待测试</td>
+        <td style="text-align: center">2</td>
+        <td style="text-align: center">13797</td>
+        <td style="text-align: center">18365</td>
+        <td style="text-align: center">8457</td>
+        <td style="text-align: center">8556</td>
+        <td style="text-align: center">18874</td>
+        <td style="text-align: center">17755</td>
+        <td style="text-align: center">21673</td>
+        <td style="text-align: center">25676</td>
     <tr>
     <tr>
-        <td stype="text-align: center">3</td>
-        <td stype="text-align: center">13649</td>
-        <td stype="text-align: center">18356</td>
-        <td stype="text-align: center">6840</td>
-        <td stype="text-align: center">10093</td>
-        <td stype="text-align: center">待测试</td>
-        <td stype="text-align: center">待测试</td>
-        <td stype="text-align: center">待测试</td>
-        <td stype="text-align: center">待测试</td>
+        <td style="text-align: center">3</td>
+        <td style="text-align: center">13649</td>
+        <td style="text-align: center">18356</td>
+        <td style="text-align: center">6840</td>
+        <td style="text-align: center">10093</td>
+        <td style="text-align: center">16185</td>
+        <td style="text-align: center">17713</td>
+        <td style="text-align: center">20834</td>
+        <td style="text-align: center">26257</td>
     <tr>
     <tr>
-        <td stype="text-align: center">4</td>
-        <td stype="text-align: center">13710</td>
-        <td stype="text-align: center">18836</td>
-        <td stype="text-align: center">6795</td>
-        <td stype="text-align: center">10516</td>
-        <td stype="text-align: center">待测试</td>
-        <td stype="text-align: center">待测试</td>
-        <td stype="text-align: center">待测试</td>
-        <td stype="text-align: center">待测试</td>
+        <td style="text-align: center">4</td>
+        <td style="text-align: center">13710</td>
+        <td style="text-align: center">18836</td>
+        <td style="text-align: center">6795</td>
+        <td style="text-align: center">10516</td>
+        <td style="text-align: center">16777</td>
+        <td style="text-align: center">17253</td>
+        <td style="text-align: center">21094</td>
+        <td style="text-align: center">25441</td>
     <tr>
     <tr>
-        <td stype="text-align: center">5</td>
-        <td stype="text-align: center">13152</td>
-        <td stype="text-align: center">19292</td>
-        <td stype="text-align: center">8213</td>
-        <td stype="text-align: center">8307</td>
-        <td stype="text-align: center">待测试</td>
-        <td stype="text-align: center">待测试</td>
-        <td stype="text-align: center">待测试</td>
-        <td stype="text-align: center">待测试</td>
+        <td style="text-align: center">5</td>
+        <td style="text-align: center">13152</td>
+        <td style="text-align: center">19292</td>
+        <td style="text-align: center">8213</td>
+        <td style="text-align: center">8307</td>
+        <td style="text-align: center">16450</td>
+        <td style="text-align: center">16434</td>
+        <td style="text-align: center">20511</td>
+        <td style="text-align: center">25775</td>
     <tr>
     <tr>
-        <td stype="text-align: center">平均</td>
-        <td stype="text-align: center">13741</td>
-        <td stype="text-align: center">18732</td>
-        <td stype="text-align: center">7708</td>
-        <td stype="text-align: center">	9295</td>
-        <td stype="text-align: center">待测试</td>
-        <td stype="text-align: center">待测试</td>
-        <td stype="text-align: center">待测试</td>
-        <td stype="text-align: center">待测试</td>
+        <td style="text-align: center">平均</td>
+        <td style="text-align: center"><span color="RED">13741</span></td>
+        <td style="text-align: center"><span color="RED">18732</span></td>
+        <td style="text-align: center"><span color="RED">7708</span></td>
+        <td style="text-align: center"><span color="RED">9295</span></td>
+        <td style="text-align: center"><span color="RED">16851</span></td>
+        <td style="text-align: center"><span color="RED">17584</span></td>
+        <td style="text-align: center"><span color="RED">20881</span></td>
+        <td style="text-align: center"><span color="RED">25903</span></td>
     <tr>
 </tbody>
 </table>

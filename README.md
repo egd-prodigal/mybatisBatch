@@ -221,11 +221,12 @@ int count = testMapper.count();
 assert count = 100;
 // 事务提交后，数据库有105条数据
 ```
-关于事务的功能测试见sample -> oracle-sample项目、sample -> mysql-sample项目和sample -> postgre-sample项目，
-数据库创建表test，修改连接配置后启动，请求web包下的url可以观察事务的工作情况，对比可以发现不同数据库对批量保存的不同表现。
-> 区别：在实际测试中，批处理执行时如果有如主键冲突的报错，oracle在会话里共享到的数据更新数时执行到具体的那一条上一条的数量，
-> mysql在会话里共享到上一批批处理成功的数量，postgres直接把当前事务设置成aborted，后续无法再继续访问数据库，但如果捕获异常不回滚，
-> 并且正常提交事务，可以发现数据库的数据是执行到报错的那一条的上一条。
+关于事务的功能测试见sample -> oracle-sample项目、sample -> mysql-sample项目、sample -> mssql-sample项目、sample -> postgre-sample项目，
+数据库创建表test，修改连接配置后启动，请求web包下的url可以观察事务的工作情况，对比可以发现不同数据库对批量保存事务管理的不同表现:
+> oracle在会话里共享到的数据更新数时执行到具体的那一条上一条的数量；  
+> mssql在会话里共享到的数据更新数时执行到具体的那一条上一条的数量；  
+> mysql在会话里共享到上一批批处理成功的数量；  
+> postgres直接把当前事务设置成aborted，后续无法再继续访问数据库，但如果捕获异常不回滚， 并且正常提交事务，可以发现数据库的数据是执行到报错的那一条的上一条。
 
 
 ### 性能测试

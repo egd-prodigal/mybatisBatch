@@ -36,12 +36,32 @@
                 <property name="password" value="123456"/>
             </dataSource>
         </environment>
+        <environment id="mssql">
+            <transactionManager type="JDBC"/>
+            <dataSource type="POOLED">
+                <property name="driver" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
+                <property name="url" value="jdbc:sqlserver://localhost:1433"/>
+                <property name="username" value="sa"/>
+                <property name="password" value="123456"/>
+            </dataSource>
+        </environment>
+        <environment id="postgre">
+            <transactionManager type="JDBC"/>
+            <dataSource type="POOLED">
+                <property name="driver" value="org.postgresql.Driver"/>
+                <property name="url" value="jdbc:postgresql://localhost:5432/test"/>
+                <property name="username" value="postgres"/>
+                <property name="password" value="123456"/>
+            </dataSource>
+        </environment>
     </environments>
 
     <databaseIdProvider type="DB_VENDOR">
         <property name="DB2" value="db2"/>
         <property name="Oracle" value="oracle" />
         <property name="Mysql" value="mysql" />
+        <property name="Mssql" value="mssql" />
+        <property name="Postgres" value="postgres" />
     </databaseIdProvider>
 
     <mappers>

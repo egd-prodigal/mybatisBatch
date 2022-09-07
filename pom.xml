@@ -41,6 +41,15 @@
                 <role>developer</role>
             </roles>
         </developer>
+        <developer>
+            <id>3</id>
+            <name>曾广霏</name>
+            <email>guangfeizeng163@163.com</email>
+            <roles>
+                <role>manager</role>
+                <role>developer</role>
+            </roles>
+        </developer>
     </developers>
 
     <properties>

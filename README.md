@@ -237,28 +237,71 @@ assert count = 100;
 
 ### 性能测试
 
-实测batch方式性能方面以明显的优势胜出，并且从编码难度来看，batch方式显然更友好。
-> 性能测试数据，详情见sample -> simple-sample里的代码  
-> 一次性保存1000_000条数据，1000条一批，batch方式由插件自行轮询，foreach手动分页，以无事务的方式运行，测试5次并取平均值，batch与foreach方式耗时如下：  
-> mysql数据库（注意mysql数据库连接字符串一定要加上参数:  **rewriteBatchedStatements=true**，否则批量保存无效）：  
-> 次数|batch耗时（毫秒）|foreach耗时（毫秒）
-> ----|----|----
-> 1|14399|18810
-> 2|13797|18365
-> 3|13649|18356
-> 4|13710|18836
-> 5|13152|19292
-> 平均|13741|18732
->
-> oracle数据库：  
-> 次数|batch耗时（毫秒）|foreach耗时（毫秒）
-> ----|----|----
-> 1|8236|9002
-> 2|8457|8556
-> 3|6840|10093
-> 4|6795|10516
-> 5|8213|8307
-> 平均|7708|9295
+实测batch方式性能方面以明显的优势胜出，并且从编码难度来看，batch方式显然更友好。  
+性能测试详情见sample -> simple-sample里的代码  
+一次性保存1000_000条数据，1000条一批，batch方式由插件自行轮询，foreach手动分页，以无事务的方式运行，测试5次并取平均值，  
+> 注意：mysql数据库连接字符串一定要加上参数:  **rewriteBatchedStatements=true**，否则批量保存无效.    
+
+batch与foreach方式耗时如下：  
+<table>
+<thead>
+    <tr>
+        <th rowspan='2'></th>
+        <th colspan='2' stype="text-align: center">mysql</th>
+        <th colspan='2' stype="text-align: center">oracle</th>
+    </tr>
+    <tr>
+        <th stype="text-align: center">batch</th>
+        <th stype="text-align: center">foreach</th>
+        <th stype="text-align: center">batch</th>
+        <th stype="text-align: center">foreach</th>
+    </tr>
+</thead>
+<tbody>
+    <tr>
+        <td stype="text-align: center">1</td>
+        <td stype="text-align: center">14399</td>
+        <td stype="text-align: center">18810</td>
+        <td stype="text-align: center">8236</td>
+        <td stype="text-align: center">9002</td>
+    <tr>
+    <tr>
+        <td stype="text-align: center">2</td>
+        <td stype="text-align: center">13797</td>
+        <td stype="text-align: center">18365</td>
+        <td stype="text-align: center">8457</td>
+        <td stype="text-align: center">8556</td>
+    <tr>
+    <tr>
+        <td stype="text-align: center">3</td>
+        <td stype="text-align: center">13649</td>
+        <td stype="text-align: center">18356</td>
+        <td stype="text-align: center">6840</td>
+        <td stype="text-align: center">10093</td>
+    <tr>
+    <tr>
+        <td stype="text-align: center">4</td>
+        <td stype="text-align: center">13710</td>
+        <td stype="text-align: center">18836</td>
+        <td stype="text-align: center">6795</td>
+        <td stype="text-align: center">10516</td>
+    <tr>
+    <tr>
+        <td stype="text-align: center">5</td>
+        <td stype="text-align: center">13152</td>
+        <td stype="text-align: center">19292</td>
+        <td stype="text-align: center">8213</td>
+        <td stype="text-align: center">8307</td>
+    <tr>
+    <tr>
+        <td stype="text-align: center">平均</td>
+        <td stype="text-align: center">13741</td>
+        <td stype="text-align: center">18732</td>
+        <td stype="text-align: center">7708</td>
+        <td stype="text-align: center">	9295</td>
+    <tr>
+</tbody>
+</table>
 
 
 ### 其他

@@ -242,7 +242,7 @@ assert count = 100;
 一次性保存1000_000条数据，1000条一批，batch方式由插件自行轮询，foreach手动分页，以无事务的方式运行，测试5次并取平均值，  
 > 注意：mysql数据库连接字符串一定要加上参数:  **rewriteBatchedStatements=true**，否则批量保存无效.    
 
-batch与foreach方式耗时如下：  
+不同数据库分别使用batch与foreach批量保存测试的耗时数据如下，单位：毫秒：  
 <table>
 <thead>
     <tr>

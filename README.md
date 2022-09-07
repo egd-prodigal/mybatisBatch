@@ -129,15 +129,16 @@ BatchInsertScanner.scan();
 示例见项目：sample -> simple-sample
 
 ### spring-batch 
-spring批处理组件，使用这个组件的用户，大概率不需要使用本插件，但是我在这里简单介绍一下这它的使用，提供另外一种mybatis批量保存的方式。  
-编写代码手动注册要使用的MyBatisBatchItemWriter的Bean，前提项目要先引入 _spring-batch_ 相关依赖
+**这一段与本插件基本没有关系** 。spring批处理组件，使用这个组件的用户，大概率不需要使用本插件，这里只是提供另外一种mybatis批量保存的方式。  
+编写代码手动装配要进行批量保存的 **MyBatisBatchItemWriter** ，项目要先引入 _spring-batch_ 相关依赖：
 ```java
 @Bean
 public MyBatisBatchItemWriter<TestPO> itemWriter() {
    MyBatisBatchItemWriterBuilder<TestPO> itemWriterBuilder = new MyBatisBatchItemWriterBuilder<>();
    itemWriterBuilder.sqlSessionTemplate(new SqlSessionTemplate(sqlSessionFactory, ExecutorType.BATCH));
-   // 这里的statementId，填完整的路径，最好是一个单独的单个保存方法
+   // 这里的statementId，填完整的路径：package.class.method，指定单个保存方法
    itemWriterBuilder.statementId("io.github.egd.prodigal.sample.repository.mapper.ITestMapper.insert");
+   // 执行时校验结果的，事实上结果由各个数据库驱动提供，设置成true的话部分数据库执行报错，详情自测
    itemWriterBuilder.assertUpdates(false);
    return itemWriterBuilder.build();
 }
@@ -152,7 +153,7 @@ itemWriterBuilder.itemToParameterConverter(testPO -> {
    return paramMap;
 });
 ```
-这样就可以在业务中使用MyBatisBatchItemWriter执行批量保存的逻辑，但是关于它的事务问题，请自行研究解决。
+这样就可以在业务中使用 **MyBatisBatchItemWriter** 执行批量保存的逻辑，但是关于它的事务问题，请自行研究。
 ### 事务问题
 
 上面提到的 **不大建议在强事务性业务中使用本插件** ，注意 **'强事务性业务'**，是为了避免大量数据保存的情况下，事务一次提交过多数据导致数据库压力过大，

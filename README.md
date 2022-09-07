@@ -129,7 +129,7 @@ void batchInsert(@Param("tableName") String tableName, @Param("unused") String u
 </plugins>
 ```
 
-编写mybatis初始化代码，基于xml配置生成SqlSessionFactory，没有基于xml配置生成的，请自行添加插件，然后在执行数据访问代码前编写如下代码：
+编写mybatis初始化代码，基于xml配置生成SqlSessionFactory，如果是不基于xml配置生成的，请自行添加插件，然后在执行数据访问代码前编写如下代码：
 
 ```java
 // 此处的sqlSessionFactory在之前的代码里生成
@@ -140,7 +140,7 @@ BatchInsertScanner.addClass(ITestMapper.class);
 // 每次调用都只会扫描上次调用scan之后调用addClass添加的新的Mapper接口类
 BatchInsertScanner.scan();
 ```
-示例见项目：sample -> simple-sample
+示例见项目：sample -> simple-sample （这个项目也承载了性能测试的功能）
 
 ### spring-batch 
 **这一段与本插件基本没有关系** 。spring批处理组件，使用这个组件的用户，大概率不需要使用本插件，这里只是提供另外一种mybatis批量保存的方式。  
@@ -167,15 +167,15 @@ itemWriterBuilder.itemToParameterConverter(testPO -> {
    return paramMap;
 });
 ```
-这样就可以在业务中使用 **MyBatisBatchItemWriter** 执行批量保存的逻辑，但是关于它的事务问题，请自行研究，下面的内容仅供参考。
+这样就可以在业务中使用 **MyBatisBatchItemWriter** 执行批量保存的逻辑，但是关于它的事务问题，请自行研究，下面关于事务的内容仅供参考。
 ### 事务问题
 
 上面提到的 **不大建议在强事务性业务中使用本插件** ，注意 **'强事务性业务'**，是为了避免大量数据保存的情况下，事务一次提交过多数据导致数据库压力过大，
 事务提交缓慢并长期占用数据库连接资源，应用服务等待时间过长导致整体业务服务不稳定的现象。  
-实际上，本插件支持事务的特性，由mybatis自身的特性提供，但是通常我们把事务交给 **spring** 事务管理框架，由 **spring** 统一管理。  
-本插件的核心是使用一个批量模式的 **SqlSession** 执行单条保存的 **MappedStatement** ，但是在实际业务过程中，其他正常的数据库访问使用默认的 **SqlSession** 实现。
+实际上，本插件支持事务的特性，由mybatis自身的特性提供，并且在 _mybatis-batch-spring_ 模块里我们把事务交给 **spring** 事务管理框架，由 **spring** 统一管理事务。  
+本插件的核心是使用一个批量模式的 **SqlSession** 执行单条保存的 **MappedStatement** ，但是在实际业务过程中，其他常规数据库访问使用默认的 **SqlSession** 实现。
 **SqlSession**顾名思义就是sql会话，正常思维下，多个会话不能共享数据，事实上也是如此，多个**SqlSession** 之间不能直接互相感知对方的操作，
-但是mybatis对**SqlSession**提供了 _flushStatements()_ 方法，这是个神奇的方法， 在无事务的情况下执行该方法，数据将会直接写入数据库，
+但是mybatis对**SqlSession**提供了 _flushStatements()_ 方法，这是个神奇的方法，在无事务的情况下执行该方法，数据将会直接写入数据库，
 在有事务管理的情况下执行该方法，它将会把自己会话里的数据库操作 _“共享”_ 给当前事务，而每个会话都能从当前事务里感知到数据库操作，即“_会话分享事务_”，
 这个方法最终是调用 **java.sql.Statement** 的 _executeBatch()_ 方法，由各个数据库驱动实现方法逻辑，因此本插件对事务控制的实际表现也因数据库而异，
 但不管使用什么数据库，常规的数据库读写操作跟批量模式下的读写操作都被一个事务管理着，要么一起成功要么一起失败。    
@@ -246,9 +246,8 @@ assert count = 100;
 
 ### 性能测试
 
-实测batch方式性能方面以明显的优势胜出，并且从编码难度来看，batch方式显然更友好。  
-性能测试详情见sample -> simple-sample里的代码  
-一次性保存1000_000条数据，1000条一批，batch方式由插件自行轮询，foreach手动分页，以无事务的方式运行，测试5次并取平均值，  
+我们基于mysql、oracle、postgre、mssql测试batch方法和foreach方法的性能，实测batch方式性能方面以微弱的优势胜出。  
+测试方法：一次性保存1000_000条数据，1000条一批，batch方式配置 _batchSize_ 参数，foreach手动分页，两种方式均以无事务的方式运行，连续测试5次并取平均值，  
 > 注意：mysql数据库连接字符串一定要加上参数:  **rewriteBatchedStatements=true**，否则批量保存无效.    
 
 不同数据库分别使用batch与foreach批量保存测试的耗时数据如下，单位：毫秒：  
@@ -341,6 +340,7 @@ assert count = 100;
     <tr>
 </tbody>
 </table>
+> 性能测试详情见sample -> simple-sample里的代码 
 
 ### 更新日志
 我们将会再添加启动校验逻辑后发布一个release版本，后续再根据实际改动添加更新日志。

@@ -321,14 +321,14 @@ assert count = 100;
     <tr>
     <tr>
         <td style="text-align: center">平均</td>
-        <td style="text-align: center"><span style='color: RED'>13741</span></td>
-        <td style="text-align: center"><span style='color: RED'>18732</span></td>
-        <td style="text-align: center"><span style='color: RED'>7708</span></td>
-        <td style="text-align: center"><span style='color: RED'>9295</span></td>
-        <td style="text-align: center"><span style='color: RED'>16851</span></td>
-        <td style="text-align: center"><span style='color: RED'>17584</span></td>
-        <td style="text-align: center"><span style='color: RED'>20881</span></td>
-        <td style="text-align: center"><span style='color: RED'>25903</span></td>
+        <td style="text-align: center">13741</td>
+        <td style="text-align: center">18732</td>
+        <td style="text-align: center">7708</td>
+        <td style="text-align: center">9295</td>
+        <td style="text-align: center">16851</td>
+        <td style="text-align: center">17584</td>
+        <td style="text-align: center">20881</td>
+        <td style="text-align: center">25903</td>
     <tr>
 </tbody>
 </table>

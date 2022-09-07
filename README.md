@@ -247,88 +247,88 @@ assert count = 100;
 <thead>
     <tr>
         <th rowspan='2'></th>
-        <th colspan='2' style="text-align: center">mysql</th>
-        <th colspan='2' style="text-align: center">oracle</th>
-        <th colspan='2' style="text-align: center">postgre</th>
-        <th colspan='2' style="text-align: center">mssql</th>
+        <th colspan='2'>mysql</th>
+        <th colspan='2'>oracle</th>
+        <th colspan='2'>postgre</th>
+        <th colspan='2'>mssql</th>
     </tr>
     <tr>
-        <th style="text-align: center">batch</th>
-        <th style="text-align: center">foreach</th>
-        <th style="text-align: center">batch</th>
-        <th style="text-align: center">foreach</th>
-        <th style="text-align: center">batch</th>
-        <th style="text-align: center">foreach</th>
-        <th style="text-align: center">batch</th>
-        <th style="text-align: center">foreach</th>
+        <th>batch</th>
+        <th>foreach</th>
+        <th>batch</th>
+        <th>foreach</th>
+        <th>batch</th>
+        <th>foreach</th>
+        <th>batch</th>
+        <th>foreach</th>
     </tr>
 </thead>
 <tbody>
     <tr>
-        <td style="text-align: center">1</td>
-        <td style="text-align: center">14399</td>
-        <td style="text-align: center">18810</td>
-        <td style="text-align: center">8236</td>
-        <td style="text-align: center">9002</td>
-        <td style="text-align: center">15971</td>
-        <td style="text-align: center">18763</td>
-        <td style="text-align: center">20293</td>
-        <td style="text-align: center">26365</td>
+        <td>1</td>
+        <td>14399</td>
+        <td>18810</td>
+        <td>8236</td>
+        <td>9002</td>
+        <td>15971</td>
+        <td>18763</td>
+        <td>20293</td>
+        <td>26365</td>
     <tr>
     <tr>
-        <td style="text-align: center">2</td>
-        <td style="text-align: center">13797</td>
-        <td style="text-align: center">18365</td>
-        <td style="text-align: center">8457</td>
-        <td style="text-align: center">8556</td>
-        <td style="text-align: center">18874</td>
-        <td style="text-align: center">17755</td>
-        <td style="text-align: center">21673</td>
-        <td style="text-align: center">25676</td>
+        <td>2</td>
+        <td>13797</td>
+        <td>18365</td>
+        <td>8457</td>
+        <td>8556</td>
+        <td>18874</td>
+        <td>17755</td>
+        <td>21673</td>
+        <td>25676</td>
     <tr>
     <tr>
-        <td style="text-align: center">3</td>
-        <td style="text-align: center">13649</td>
-        <td style="text-align: center">18356</td>
-        <td style="text-align: center">6840</td>
-        <td style="text-align: center">10093</td>
-        <td style="text-align: center">16185</td>
-        <td style="text-align: center">17713</td>
-        <td style="text-align: center">20834</td>
-        <td style="text-align: center">26257</td>
+        <td>3</td>
+        <td>13649</td>
+        <td>18356</td>
+        <td>6840</td>
+        <td>10093</td>
+        <td>16185</td>
+        <td>17713</td>
+        <td>20834</td>
+        <td>26257</td>
     <tr>
     <tr>
-        <td style="text-align: center">4</td>
-        <td style="text-align: center">13710</td>
-        <td style="text-align: center">18836</td>
-        <td style="text-align: center">6795</td>
-        <td style="text-align: center">10516</td>
-        <td style="text-align: center">16777</td>
-        <td style="text-align: center">17253</td>
-        <td style="text-align: center">21094</td>
-        <td style="text-align: center">25441</td>
+        <td>4</td>
+        <td>13710</td>
+        <td>18836</td>
+        <td>6795</td>
+        <td>10516</td>
+        <td>16777</td>
+        <td>17253</td>
+        <td>21094</td>
+        <td>25441</td>
     <tr>
     <tr>
-        <td style="text-align: center">5</td>
-        <td style="text-align: center">13152</td>
-        <td style="text-align: center">19292</td>
-        <td style="text-align: center">8213</td>
-        <td style="text-align: center">8307</td>
-        <td style="text-align: center">16450</td>
-        <td style="text-align: center">16434</td>
-        <td style="text-align: center">20511</td>
-        <td style="text-align: center">25775</td>
+        <td>5</td>
+        <td>13152</td>
+        <td>19292</td>
+        <td>8213</td>
+        <td>8307</td>
+        <td>16450</td>
+        <td>16434</td>
+        <td>20511</td>
+        <td>25775</td>
     <tr>
     <tr>
-        <td style="text-align: center">平均</td>
-        <td style="text-align: center">13741</td>
-        <td style="text-align: center">18732</td>
-        <td style="text-align: center">7708</td>
-        <td style="text-align: center">9295</td>
-        <td style="text-align: center">16851</td>
-        <td style="text-align: center">17584</td>
-        <td style="text-align: center">20881</td>
-        <td style="text-align: center">25903</td>
+        <td>平均</td>
+        <td><strong>13741</strong></td>
+        <td>18732</td>
+        <td><strong>7708</strong></td>
+        <td>9295</td>
+        <td><strong>16851</strong></td>
+        <td>17584</td>
+        <td><strong>20881</strong></td>
+        <td>25903</td>
     <tr>
 </tbody>
 </table>

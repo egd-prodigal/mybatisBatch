@@ -173,7 +173,7 @@ _executeBatch()_ 方法，由各个数据库驱动实现方法逻辑，因此本
 关于事务问题示例如下，假定下面代码都是在spring事务里操作:
 1. 批量保存感知到之前执行的结果
 ```java
-// 直接以主键为1保存数据库，此时是在默认的SqlSession，即先创建的SqlSession里执行
+// 直接以主键为1保存数据库，此时是在默认的SqlSession
 testMapper.insert(1);
 List<Integer> list = new ArrayList<>();
 list.add(1);
@@ -192,6 +192,34 @@ testMapper.batchInsert(list);
 // 直接以主键为1保存数据库，此时是在默认的SqlSession里
 // 由于本插件默认执行了flushStatements，所以这里将会抛出主键冲突异常
 testMapper.insert(1);
+```
+3. 默认事务无法感知到批量保存的结果
+```java
+// 假设数据清空，直接以主键为1保存数据库，此时是在默认的SqlSession
+testMapper.insert(1);
+// 构造从1开始到5的集合
+List<Integer> list = generateList(5);
+// 假设这是一个批量保存的方法，并且flushStatements为false，batchSize>5，它不会抛出主键冲突的异常
+testMapper.batchInsert(list);
+// 查询数据库数据数量，此时是在默认的SqlSession
+int count = testMapper.count();
+// 由于flushStatements为false，并且执行数量小于batchSize，所以事务无法感知到
+assert count = 1;
+// 事务提交时将会抛出主键冲突的异常
+```
+4. 批量保存部分提交
+```java
+// 假设数据清空
+// 构造从1开始到105的集合
+List<Integer> list = generateList(105);
+// 假设这是一个批量保存的方法，并且flushStatements为false，batchSize为10
+testMapper.batchInsert(list);
+// 查询数据库数据数量，此时是在默认的SqlSession
+int count = testMapper.count();
+// 由于flushStatements为false，但数量大于batchSize，每执行10条都会flushStatements()一次，
+// 造成会话部分共享的情况，执行到第100条时flushStatements()，但后续数量不足10条，没有flushStatements()
+assert count = 100;
+// 事务提交后，数据库有105条数据
 ```
 关于事务的功能测试见sample -> oracle-sample项目、sample -> mysql-sample项目和sample -> postgre-sample项目，
 数据库创建表test，修改连接配置后启动，请求web包下的url可以观察事务的工作情况，对比可以发现不同数据库对批量保存的不同表现。

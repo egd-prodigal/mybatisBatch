@@ -230,6 +230,7 @@ public class BatchInsertInterceptor implements Interceptor {
      * @return Method
      */
     private Method findMapperMethod(String id, Class<?> mapperClass) {
+        // todo 最终获取method为空，以后就不再从类里面获取了，直接返回null
         Method method = mapperMethodMap.get(id);
         if (method == null) {
             String methodName = id.substring(id.lastIndexOf(".") + 1);

@@ -29,9 +29,11 @@ void batchInsert(@Param("testPOS") List<TestPO> po);
 ```
 > 如果只有一个集合入参，可以不配置 **@Param**，并且不指定 _collection_，如果sql语句里的参数没有明确指定参数名， 可以不指定 _item_，
 > 批量提交的数量也可以不指定值，下面的代码与上面代码的将会达到相同的效果：  
+> ```java
 > @Insert("insert into test (id, name) values (#{id}, #{name})")  
 > @BatchInsert  
 > void batchInsert(List<TestPO> po);  
+> ```
 
 上面的两段代码功能与下面的一致（sql语法因数据库而异），但是性能更优（见[性能测试](#性能测试)）：
 

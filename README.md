@@ -82,6 +82,8 @@ void batchInsert(@Param("tableName") String tableName, @Param("unused") String u
 ```
 示例见项目：sample -> springboot-sample
 
+> 注：如果是自己装配SqlSessionFactoryBean的，不需要额外编写添加插件的代码，会自动添加，纯spring环境下也一样。
+
 ### 纯 **spring** 项目
 
 增加如下依赖

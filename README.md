@@ -249,8 +249,14 @@ assert count = 100;
         <th rowspan='2'></th>
         <th colspan='2' stype="text-align: center">mysql</th>
         <th colspan='2' stype="text-align: center">oracle</th>
+        <th colspan='2' stype="text-align: center">mssql</th>
+        <th colspan='2' stype="text-align: center">postgre</th>
     </tr>
     <tr>
+        <th stype="text-align: center">batch</th>
+        <th stype="text-align: center">foreach</th>
+        <th stype="text-align: center">batch</th>
+        <th stype="text-align: center">foreach</th>
         <th stype="text-align: center">batch</th>
         <th stype="text-align: center">foreach</th>
         <th stype="text-align: center">batch</th>
@@ -264,6 +270,10 @@ assert count = 100;
         <td stype="text-align: center">18810</td>
         <td stype="text-align: center">8236</td>
         <td stype="text-align: center">9002</td>
+        <td stype="text-align: center">待测试</td>
+        <td stype="text-align: center">待测试</td>
+        <td stype="text-align: center">待测试</td>
+        <td stype="text-align: center">待测试</td>
     <tr>
     <tr>
         <td stype="text-align: center">2</td>
@@ -271,6 +281,10 @@ assert count = 100;
         <td stype="text-align: center">18365</td>
         <td stype="text-align: center">8457</td>
         <td stype="text-align: center">8556</td>
+        <td stype="text-align: center">待测试</td>
+        <td stype="text-align: center">待测试</td>
+        <td stype="text-align: center">待测试</td>
+        <td stype="text-align: center">待测试</td>
     <tr>
     <tr>
         <td stype="text-align: center">3</td>
@@ -278,6 +292,10 @@ assert count = 100;
         <td stype="text-align: center">18356</td>
         <td stype="text-align: center">6840</td>
         <td stype="text-align: center">10093</td>
+        <td stype="text-align: center">待测试</td>
+        <td stype="text-align: center">待测试</td>
+        <td stype="text-align: center">待测试</td>
+        <td stype="text-align: center">待测试</td>
     <tr>
     <tr>
         <td stype="text-align: center">4</td>
@@ -285,6 +303,10 @@ assert count = 100;
         <td stype="text-align: center">18836</td>
         <td stype="text-align: center">6795</td>
         <td stype="text-align: center">10516</td>
+        <td stype="text-align: center">待测试</td>
+        <td stype="text-align: center">待测试</td>
+        <td stype="text-align: center">待测试</td>
+        <td stype="text-align: center">待测试</td>
     <tr>
     <tr>
         <td stype="text-align: center">5</td>
@@ -292,6 +314,10 @@ assert count = 100;
         <td stype="text-align: center">19292</td>
         <td stype="text-align: center">8213</td>
         <td stype="text-align: center">8307</td>
+        <td stype="text-align: center">待测试</td>
+        <td stype="text-align: center">待测试</td>
+        <td stype="text-align: center">待测试</td>
+        <td stype="text-align: center">待测试</td>
     <tr>
     <tr>
         <td stype="text-align: center">平均</td>
@@ -299,6 +325,10 @@ assert count = 100;
         <td stype="text-align: center">18732</td>
         <td stype="text-align: center">7708</td>
         <td stype="text-align: center">	9295</td>
+        <td stype="text-align: center">待测试</td>
+        <td stype="text-align: center">待测试</td>
+        <td stype="text-align: center">待测试</td>
+        <td stype="text-align: center">待测试</td>
     <tr>
 </tbody>
 </table>

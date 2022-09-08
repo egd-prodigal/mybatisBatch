@@ -346,10 +346,18 @@ assert count = 100;
 > 性能测试详情见sample -> simple-sample里的代码 
 
 ### 更新日志
-我们将会再添加启动校验逻辑后发布一个release版本，后续再根据实际改动添加更新日志。
+
+- v2.0.3 发布第一个release版本
 
 #### 后续计划
-批量保存将支持java8 Stream入参
+
+- 批量保存将支持java8 Stream入参
+
+### 参与者
+
+- 生一鸣 <yeeminshon@outlook.com>
+- 宋祥富 <784413317@qq.com>
+- 曾广霏 <guangfeizeng163@163.com>
 
 ### 其他
 Mybatis-Plus已经实现了本插件提供的功能，考虑到项目组开发习惯，并未引入Mybatis-Plus，故而开发此插件。  

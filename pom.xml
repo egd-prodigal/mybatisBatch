@@ -37,7 +37,6 @@
             <name>宋祥富</name>
             <email>784413317@qq.com</email>
             <roles>
-                <role>manager</role>
                 <role>developer</role>
             </roles>
         </developer>
@@ -46,7 +45,6 @@
             <name>曾广霏</name>
             <email>guangfeizeng163@163.com</email>
             <roles>
-                <role>manager</role>
                 <role>developer</role>
             </roles>
         </developer>
@@ -85,8 +83,15 @@
 
     <issueManagement>
         <system>Github Issue</system>
-        <!--		<url></url>-->
+        <url>https://github.com/egd-prodigal/mybatisBatch/issues</url>
     </issueManagement>
+
+    <licenses>
+        <license>
+            <name>MIT</name>
+            <url>https://github.com/egd-prodigal/mybatisBatch/blob/master/LICENSE</url>
+        </license>
+    </licenses>
 
     <build>
         <plugins>

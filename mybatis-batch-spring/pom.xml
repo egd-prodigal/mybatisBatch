@@ -11,6 +11,35 @@
 
     <artifactId>mybatis-batch-spring</artifactId>
 
+    <developers>
+        <developer>
+            <id>1</id>
+            <name>生一鸣</name>
+            <email>yeeminshon@outlook.com</email>
+            <url>https://yeemin.site</url>
+            <roles>
+                <role>manager</role>
+                <role>developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>2</id>
+            <name>宋祥富</name>
+            <email>784413317@qq.com</email>
+            <roles>
+                <role>developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>3</id>
+            <name>曾广霏</name>
+            <email>guangfeizeng163@163.com</email>
+            <roles>
+                <role>developer</role>
+            </roles>
+        </developer>
+    </developers>
+
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
@@ -40,5 +69,22 @@
         </dependency>
     </dependencies>
 
+    <scm>
+        <connection>scm:git:git@github.com:egd-prodigal/mybatisBatch.git</connection>
+        <developerConnection>scm:git:git@github.com:egd-prodigal/mybatisBatch.git</developerConnection>
+        <url>git@github.com:egd-prodigal/mybatisBatch.git</url>
+    </scm>
+
+    <issueManagement>
+        <system>Github Issue</system>
+        <url>https://github.com/egd-prodigal/mybatisBatch/issues</url>
+    </issueManagement>
+
+    <licenses>
+        <license>
+            <name>MIT</name>
+            <url>https://github.com/egd-prodigal/mybatisBatch/blob/master/LICENSE</url>
+        </license>
+    </licenses>
 
 </project>

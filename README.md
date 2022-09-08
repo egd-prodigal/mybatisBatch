@@ -170,7 +170,7 @@ itemWriterBuilder.itemToParameterConverter(testPO -> {
 });
 ```
 这样就可以在业务中使用 **MyBatisBatchItemWriter** 执行批量保存的逻辑，但是关于它的事务问题，请自行研究，下面关于事务的内容仅供参考。
-### 事务问题
+## 事务问题
 
 上面提到的 **不大建议在强事务性业务中使用本插件** ，注意 **'强事务性业务'**，是为了避免大量数据保存的情况下，事务一次提交过多数据导致数据库压力过大，
 事务提交缓慢并长期占用数据库连接资源，应用服务等待时间过长导致整体业务服务不稳定的现象。  
@@ -246,7 +246,7 @@ assert count = 100;
 > postgres直接把当前事务设置成aborted，后续无法再继续访问数据库，但如果捕获异常不回滚， 并且正常提交事务，可以发现数据库的数据是执行到报错的那一条的上一条。
 
 
-### 性能测试
+## 性能测试
 
 我们基于mysql、oracle、postgre、mssql测试batch方法和foreach方法的性能，实测batch方式性能方面以微弱的优势胜出。  
 测试方法：一次性保存1000_000条数据，1000条一批，batch方式配置 _batchSize_ 参数，foreach手动分页，两种方式均以无事务的方式运行，连续测试5次并取平均值，  
@@ -345,20 +345,20 @@ assert count = 100;
 
 > 性能测试详情见sample -> simple-sample里的代码 
 
-### 更新日志
+## 更新日志
 
 - v2.0.3 发布第一个release版本
 
-#### 后续计划
+### 后续计划
 
 - 批量保存将支持java8 Stream入参
 
-### 参与者
+## 参与者
 
 - 生一鸣 <yeeminshon@outlook.com>
 - 宋祥富 <784413317@qq.com>
 - 曾广霏 <guangfeizeng163@163.com>
 
-### 其他
+## 其他
 Mybatis-Plus已经实现了本插件提供的功能，考虑到项目组开发习惯，并未引入Mybatis-Plus，故而开发此插件。  
 版本：本插件开发时基于Mybatis: 3.5.9，SpringBoot： 2.7.3， Spring：5.3.22，实测可兼容版本为：Mybatis: 3.4.5，SpringBoot： 2.1.3， Spring：5.1.5，可能还能兼容更低的版本，欢迎测试。

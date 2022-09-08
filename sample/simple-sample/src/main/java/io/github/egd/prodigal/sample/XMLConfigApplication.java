@@ -10,7 +10,7 @@ public class XMLConfigApplication {
 
 
     public static void main(String[] args) {
-        SqlSessionFactory sqlSessionFactory = SimpleSampleUtils.getSqlSessionFactory("oracle");
+        SqlSessionFactory sqlSessionFactory = SimpleSampleUtils.getSqlSessionFactory("h2");
         try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
             ITestMapper testMapper = sqlSession.getMapper(ITestMapper.class);
             testMapper.deleteAll();

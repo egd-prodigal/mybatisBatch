@@ -9,7 +9,9 @@ import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.SqlCommandType;
 import org.apache.ibatis.plugin.*;
+import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.defaults.DefaultSqlSession;
 
 import java.lang.reflect.Method;
 import java.util.*;
@@ -33,11 +35,6 @@ public class BatchInsertInterceptor implements Interceptor {
      * 非spring模式下缓存Mapper的类
      */
     private final Map<String, Class<?>> mapperClassMap = new HashMap<>();
-
-//    /**
-//     * 非spring模式下缓存MappedStatement的方法
-//     */
-//    private final Map<String, Method> mapperMethodMap = new HashMap<>();
 
     /**
      * 非spring模式下缓存mapper的类和方法<key1:mapper类<key2：methodName>>
@@ -95,22 +92,20 @@ public class BatchInsertInterceptor implements Interceptor {
         }
         // 这是方法入参，由开发者编写Mapper接口里的方法生成，正常情况下的调用都会是一个ParamMap类型的参数
         Object object = argsObjects[1];
+        // 非HashMap的，直接往后执行
+        if (!(object instanceof HashMap)) {
+            return invocation.proceed();
+        }
         // 3.5.5之前的版本大都是DefaultSqlSession#StrictMap，后面的版本大都是MapperMethod#ParamMap，兼容两者
-        if (object instanceof HashMap) {
-            // 非mybatis提供的HashMap类型的入参
-            if (!object.getClass().getName().startsWith("org.apache.ibatis")) {
-                return invocation.proceed();
-            }
+        // ParamMap从3.2.0版本开始引入,instanceof 判断效率更高
+        if (object instanceof ParamMap || object instanceof DefaultSqlSession.StrictMap) {
+            // 获取集合参数，
+            Collection<?> itemList = getItemList((HashMap<?, ?>) object, batchInsert);
+            // 执行批量保存
+            return invokeBatchInsert(mappedStatement, batchInsert, itemList, (HashMap<?, ?>) object);
         } else {
             return invocation.proceed();
         }
-//        if (!(object instanceof ParamMap || object instanceof DefaultSqlSession.StrictMap)) {
-//            return invocation.proceed();
-//        }
-        // 获取集合参数，
-        Collection<?> itemList = getItemList((HashMap<?, ?>) object, batchInsert);
-        // 执行批量保存
-        return invokeBatchInsert(mappedStatement, batchInsert, itemList, (HashMap<?, ?>) object);
     }
 
     /**
@@ -163,8 +158,8 @@ public class BatchInsertInterceptor implements Interceptor {
                         // 执行之前的保存sql
                         List<BatchResult> batchResults = sqlSession.flushStatements();
                         for (BatchResult batchResult : batchResults) {
-                            int[] ints = batchResult.getUpdateCounts();
-                            for (int result : ints) {
+                            int[] batchResultUpdateCounts = batchResult.getUpdateCounts();
+                            for (int result : batchResultUpdateCounts) {
                                 updateCounts += result;
                             }
                         }
@@ -236,18 +231,26 @@ public class BatchInsertInterceptor implements Interceptor {
      * @return Method
      */
     private Method findMapperMethod(String id, Class<?> mapperClass) {
-        // todo 最终获取method为空，以后就不再从类里面获取了，直接返回null
         //如果是null，说明没获取过
         Map<String, Method> methodMap = mapperClassMethodMap.get(mapperClass);
         if (methodMap == null) {
+            Configuration configuration = BatchInsertContext.getSqlSessionFactory().getConfiguration();
             Method[] methods = mapperClass.getDeclaredMethods();
-            methodMap = Arrays.stream(methods).collect(Collectors.toMap(Method::getName, method -> method));
+            methodMap = Arrays.stream(methods).filter(method -> {
+                // 仅判断insert的
+                String mappedStatementId = method.getDeclaringClass().getName() + "." + method.getName();
+                if (configuration.hasStatement(mappedStatementId)) {
+                    MappedStatement mappedStatement = configuration.getMappedStatement(mappedStatementId);
+                    return SqlCommandType.INSERT.equals(mappedStatement.getSqlCommandType());
+                }
+                return false;
+            }).collect(Collectors.toMap(Method::getName, method -> method));
             mapperClassMethodMap.put(mapperClass, methodMap);
         }
 
         //获取过
         String methodName = id.substring(id.lastIndexOf(".") + 1);
-        return mapperClassMethodMap.get(mapperClass).get(methodName);
+        return methodMap.get(methodName);
     }
 
     /**

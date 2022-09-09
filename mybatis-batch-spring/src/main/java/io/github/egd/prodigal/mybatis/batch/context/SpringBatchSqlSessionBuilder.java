@@ -73,11 +73,9 @@ public class SpringBatchSqlSessionBuilder implements BatchSqlSessionBuilder {
         if (!TransactionSynchronizationManager.isSynchronizationActive()) {
             BatchSqlSessionBuilder.super.commit(sqlSession, flushStatements);
         } else {
-            if (flushStatements) {
-                // 批量处理的SqlSession刷入数据库，使会话能够共享执行结果
-                // 在实际使用中，建议批量的操作在业务的最后执行，最好是异步实现
-                sqlSession.flushStatements();
-            }
+            // 批量处理的SqlSession刷入数据库，使会话能够共享执行结果
+            // 在实际使用中，建议批量的操作在业务的最后执行，最好一个异步的架构体系
+            sqlSession.flushStatements();
         }
     }
 

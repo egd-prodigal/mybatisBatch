@@ -78,7 +78,7 @@ void batchInsert(@Param("tableName") String tableName, @Param("unused") String u
 <dependency>
     <groupId>io.github.egd-prodigal</groupId>
     <artifactId>mybatis-batch-starter</artifactId>
-    <version>2.0.3</version>
+    <version>2.0.4</version>
 </dependency>
 ```
 示例见项目：sample -> springboot-sample
@@ -93,7 +93,7 @@ void batchInsert(@Param("tableName") String tableName, @Param("unused") String u
 <dependency>
     <groupId>io.github.egd-prodigal</groupId>
     <artifactId>mybatis-batch-spring</artifactId>
-    <version>2.0.3</version>
+    <version>2.0.4</version>
 </dependency>
 ```
 前提是已经在项目里整合好了Mybatis，然后在项目中使用下列任意一种配置：
@@ -121,7 +121,7 @@ void batchInsert(@Param("tableName") String tableName, @Param("unused") String u
 <dependency>
     <groupId>io.github.egd-prodigal</groupId>
     <artifactId>mybatis-batch</artifactId>
-    <version>2.0.3</version>
+    <version>2.0.4</version>
 </dependency>
 ```
 在配置文件 **mybatis-config.xml** （也可以是其他文件名）里增加插件配置：
@@ -347,6 +347,7 @@ assert count = 100;
 ## 更新日志
 
 - v2.0.3 发布第一个release版本
+- v2.0.4 事务里多个批量保存使用同一个会话
 
 ### 后续计划
 

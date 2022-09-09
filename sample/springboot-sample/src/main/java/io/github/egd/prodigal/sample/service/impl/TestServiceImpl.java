@@ -34,6 +34,10 @@ public class TestServiceImpl implements TestService {
         testPO.setName("yeemin");
         testMapper.insert(testPO);
         System.out.println("count: " + testMapper.count());
+        testMapper.deleteAll();
+        testMapper.batchInsert2(list);
+        testMapper.insert(testPO);
+        System.out.println("count: " + testMapper.count());
     }
 
     @Override

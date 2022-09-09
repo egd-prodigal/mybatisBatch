@@ -20,7 +20,7 @@ public class SpringSampleApplication {
     public static void main(String[] args) {
         AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext("io.github.egd.prodigal.sample",
                 "io.github.egd.prodigal.mybatis.batch.config");
-        applicationContext.register(MybatisBatchConfiguration.class);
+//        applicationContext.register(MybatisBatchConfiguration.class);
 
         ITestMapper testMapper = applicationContext.getBean(ITestMapper.class);
 

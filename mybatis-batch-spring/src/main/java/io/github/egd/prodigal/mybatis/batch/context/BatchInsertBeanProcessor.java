@@ -4,6 +4,7 @@ import io.github.egd.prodigal.mybatis.batch.annotations.BatchInsert;
 import io.github.egd.prodigal.mybatis.batch.core.BatchInsertContext;
 import io.github.egd.prodigal.mybatis.batch.core.BatchInsertScanner;
 import io.github.egd.prodigal.mybatis.batch.plugins.BatchInsertInterceptor;
+import io.github.egd.prodigal.mybatis.batch.plugins.BatchInterceptor;
 import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -30,6 +31,11 @@ public class BatchInsertBeanProcessor implements BeanPostProcessor, SmartInitial
      */
     private BatchInsertInterceptor batchInsertInterceptor;
 
+    /**
+     * 批量操作拦截器
+     */
+    private BatchInterceptor batchInterceptor;
+
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
         if (bean instanceof MapperFactoryBean) {
@@ -53,14 +59,29 @@ public class BatchInsertBeanProcessor implements BeanPostProcessor, SmartInitial
     public void afterSingletonsInstantiated() {
         // 扫描注册的批量保存方法
         BatchInsertScanner.scan();
+        SpringBatchSqlSessionBuilder batchSqlSessionBuilder = null;
         if (getBatchInsertInterceptor() != null) {
-            getBatchInsertInterceptor().setBatchSqlSessionBuilder(new SpringBatchSqlSessionBuilder());
+            batchSqlSessionBuilder = new SpringBatchSqlSessionBuilder();
+            getBatchInsertInterceptor().setBatchSqlSessionBuilder(batchSqlSessionBuilder);
             // 确认一下是否注册了拦截器，有时候会有开发者自己手动装配SqlSessionFactory
             Configuration configuration = BatchInsertContext.getSqlSessionFactory().getConfiguration();
             List<Interceptor> interceptors = configuration.getInterceptors();
             boolean b = interceptors.stream().anyMatch(e -> e instanceof BatchInsertInterceptor);
             if (!b) {
                 configuration.addInterceptor(getBatchInsertInterceptor());
+            }
+        }
+        if (getBatchInterceptor() != null) {
+            if (batchSqlSessionBuilder == null) {
+                batchSqlSessionBuilder = new SpringBatchSqlSessionBuilder();
+            }
+            getBatchInterceptor().setBatchSqlSessionBuilder(batchSqlSessionBuilder);
+            // 确认一下是否注册了拦截器，有时候会有开发者自己手动装配SqlSessionFactory
+            Configuration configuration = BatchInsertContext.getSqlSessionFactory().getConfiguration();
+            List<Interceptor> interceptors = configuration.getInterceptors();
+            boolean b = interceptors.stream().anyMatch(e -> e instanceof BatchInterceptor);
+            if (!b) {
+                configuration.addInterceptor(getBatchInterceptor());
             }
         }
     }
@@ -72,6 +93,14 @@ public class BatchInsertBeanProcessor implements BeanPostProcessor, SmartInitial
 
     public void setBatchInsertInterceptor(BatchInsertInterceptor batchInsertInterceptor) {
         this.batchInsertInterceptor = batchInsertInterceptor;
+    }
+
+    public BatchInterceptor getBatchInterceptor() {
+        return batchInterceptor;
+    }
+
+    public void setBatchInterceptor(BatchInterceptor batchInterceptor) {
+        this.batchInterceptor = batchInterceptor;
     }
 
 }

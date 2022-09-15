@@ -1,10 +1,8 @@
 package io.github.egd.prodigal.mybatis.batch.core;
 
 import io.github.egd.prodigal.mybatis.batch.annotations.BatchInsert;
-import io.github.egd.prodigal.mybatis.batch.plugins.BatchInsertInterceptor;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.SqlCommandType;
-import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.plugin.PluginException;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -12,13 +10,12 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
  * 批量保存注册扫描器
  */
-public class BatchInsertScanner {
+public class BatchScanner {
 
     /**
      * Mapper类集合
@@ -82,7 +79,7 @@ public class BatchInsertScanner {
             });
         }
         mapperClasses.clear();
-        SqlSessionFactory sqlSessionFactory = BatchInsertContext.getSqlSessionFactory();
+        SqlSessionFactory sqlSessionFactory = BatchContext.getSqlSessionFactory();
         Configuration configuration = sqlSessionFactory.getConfiguration();
         // 遍历方法注册MappedStatement
         for (Method mapperMethod : mapperMethods) {
@@ -98,17 +95,17 @@ public class BatchInsertScanner {
                 MappedStatement mappedStatement = configuration.getMappedStatement(mappedStatementId);
                 if (SqlCommandType.INSERT.equals(mappedStatement.getSqlCommandType())) {
                     // 只注册保存的语句
-                    BatchInsertContext.addBatchInsertMappedStatement(mappedStatementId, batchInsert);
-                    BatchInsertContext.registerSingleInsertMappedStatement(mappedStatementId, batchInsert);
+                    BatchContext.addBatchInsertMappedStatement(mappedStatementId, batchInsert);
+                    BatchContext.registerSingleInsertMappedStatement(mappedStatementId, batchInsert);
                 }
             } else {
                 // 没有，说明本方法可能没有Insert注解，但是指定了insert方法，这里需要注册批量保存方法
-                BatchInsertContext.addBatchInsertMappedStatement(mappedStatementId, batchInsert);
-                BatchInsertContext.registerBatchInsertMappedStatement(mapperMethod, batchInsert);
+                BatchContext.addBatchInsertMappedStatement(mappedStatementId, batchInsert);
+                BatchContext.registerBatchInsertMappedStatement(mapperMethod, batchInsert);
             }
         }
         mapperMethods.clear();
-        if (!BatchInsertContext.isInSpring()) {
+        if (!BatchContext.isInSpring()) {
             // 非spring环境下初始化拦截器的SqlSessionBuilder
             checkAndInitSqlSessionBuilder();
         }
@@ -119,14 +116,8 @@ public class BatchInsertScanner {
      */
     private static void checkAndInitSqlSessionBuilder() {
         // 防止没有手动设置拦截器的BatchSqlSessionBuilder，这里检查并设值
-        List<Interceptor> interceptors = BatchInsertContext.getSqlSessionFactory().getConfiguration().getInterceptors();
-        for (Interceptor interceptor : interceptors) {
-            if (interceptor instanceof BatchInsertInterceptor) {
-                BatchInsertInterceptor batchInsertInterceptor = (BatchInsertInterceptor) interceptor;
-                if (batchInsertInterceptor.getBatchSqlSessionBuilder() == null) {
-                    batchInsertInterceptor.setBatchSqlSessionBuilder(new DefaultBatchSqlSessionBuilder());
-                }
-            }
+        if (BatchContext.getBatchSqlSessionBuilder() == null) {
+            BatchContext.setBatchSqlSessionBuilder(new DefaultBatchSqlSessionBuilder());
         }
     }
 

@@ -5,6 +5,9 @@ import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.SqlCommandType;
 import org.apache.ibatis.mapping.SqlSource;
 import org.apache.ibatis.plugin.PluginException;
+import org.apache.ibatis.reflection.DefaultReflectorFactory;
+import org.apache.ibatis.reflection.factory.DefaultObjectFactory;
+import org.apache.ibatis.reflection.wrapper.DefaultObjectWrapperFactory;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSessionFactory;
 
@@ -13,9 +16,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 批量插入上下文，提供一些公用方法，存储sqlSessionFactory等信息
+ * 批量模式上下文，提供一些公用方法，存储sqlSessionFactory等信息
  */
-public class BatchInsertContext {
+public class BatchContext {
 
     /**
      * BatchInsert注解缓存
@@ -28,6 +31,11 @@ public class BatchInsertContext {
     private static SqlSessionFactory sqlSessionFactory;
 
     /**
+     * 批量SqlSession构造器，通过它打开一个批量模式的SqlSession
+     */
+    private static BatchSqlSessionBuilder batchSqlSessionBuilder;
+
+    /**
      * 是否在spring容器里，即是否依赖了mybatis-batch-starter并以spring应用启动
      */
     private static boolean inSpring = false;
@@ -36,6 +44,18 @@ public class BatchInsertContext {
      * 本插件关键字，标识单条插入的MappedStatement
      */
     public static final String EGD_SINGLE_INSERT = ".egd-singleInsert";
+
+    /**
+     * 是否已经在批量模式里
+     */
+    public static final String UPDATE_IS_IN_BATCH = "update-is-in-batch";
+
+    // 以下三个用于MetaObject使用
+    public static final DefaultObjectFactory objectFactory = new DefaultObjectFactory();
+
+    public static final DefaultObjectWrapperFactory objectWrapperFactory = new DefaultObjectWrapperFactory();
+
+    public static final DefaultReflectorFactory reflectorFactory = new DefaultReflectorFactory();
 
     /**
      * 设置当前环境为spring
@@ -93,7 +113,7 @@ public class BatchInsertContext {
      * @param sqlSessionFactory sqlSessionFactory
      */
     public static void setSqlSessionFactory(SqlSessionFactory sqlSessionFactory) {
-        BatchInsertContext.sqlSessionFactory = sqlSessionFactory;
+        BatchContext.sqlSessionFactory = sqlSessionFactory;
     }
 
     /**
@@ -103,6 +123,24 @@ public class BatchInsertContext {
      */
     public static SqlSessionFactory getSqlSessionFactory() {
         return sqlSessionFactory;
+    }
+
+    /**
+     * 获取批量SqlSession构造器
+     *
+     * @return BatchSqlSessionBuilder
+     */
+    public static BatchSqlSessionBuilder getBatchSqlSessionBuilder() {
+        return BatchContext.batchSqlSessionBuilder;
+    }
+
+    /**
+     * 设置批量SqlSession构造器
+     *
+     * @param batchSqlSessionBuilder 批量SqlSession构造器
+     */
+    public static void setBatchSqlSessionBuilder(BatchSqlSessionBuilder batchSqlSessionBuilder) {
+        BatchContext.batchSqlSessionBuilder = batchSqlSessionBuilder;
     }
 
     /**
@@ -117,7 +155,7 @@ public class BatchInsertContext {
         boolean hasInsert = !"".equals(batchInsert.insert());
         if (!hasInsert) {
             // 有insert表示这是指定其他方法的情况，不需要额外注册单条保存的MappedStatement了
-            String singleMappedStatementInsertId = id + BatchInsertContext.EGD_SINGLE_INSERT;
+            String singleMappedStatementInsertId = id + BatchContext.EGD_SINGLE_INSERT;
             if (configuration.hasStatement(singleMappedStatementInsertId)) {
                 // 多线程下防止重复注册
                 return;

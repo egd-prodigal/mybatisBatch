@@ -1,7 +1,7 @@
 package io.github.egd.prodigal.sample;
 
-import io.github.egd.prodigal.mybatis.batch.core.BatchInsertContext;
-import io.github.egd.prodigal.mybatis.batch.core.BatchInsertScanner;
+import io.github.egd.prodigal.mybatis.batch.core.BatchContext;
+import io.github.egd.prodigal.mybatis.batch.core.BatchScanner;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -27,9 +27,9 @@ public class SimpleSampleUtils {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-            BatchInsertContext.setSqlSessionFactory(sqlSessionFactory);
-            BatchInsertScanner.addClass(ITestMapper.class);
-            BatchInsertScanner.scan();
+            BatchContext.setSqlSessionFactory(sqlSessionFactory);
+            BatchScanner.addClass(ITestMapper.class);
+            BatchScanner.scan();
         }
         return sqlSessionFactory;
     }

@@ -1,8 +1,7 @@
 package io.github.egd.prodigal.mybatis.batch.plugins;
 
 import io.github.egd.prodigal.mybatis.batch.annotations.BatchInsert;
-import io.github.egd.prodigal.mybatis.batch.core.BatchInsertContext;
-import io.github.egd.prodigal.mybatis.batch.core.BatchSqlSessionBuilder;
+import io.github.egd.prodigal.mybatis.batch.core.BatchContext;
 import org.apache.ibatis.binding.MapperMethod.ParamMap;
 import org.apache.ibatis.executor.BatchResult;
 import org.apache.ibatis.executor.Executor;
@@ -25,11 +24,6 @@ import java.util.stream.Stream;
  */
 @Intercepts(@Signature(type = Executor.class, method = "update", args = {MappedStatement.class, Object.class}))
 public class BatchInsertInterceptor implements Interceptor {
-
-    /**
-     * 批量SqlSession构造器，通过它打开一个批量模式的SqlSession
-     */
-    private BatchSqlSessionBuilder batchSqlSessionBuilder;
 
     /**
      * 非spring模式下缓存Mapper的类
@@ -61,16 +55,16 @@ public class BatchInsertInterceptor implements Interceptor {
         }
         // 获取mappedStatementId，如果是约定的.egd-singleInsert结尾的，表明已经是单条保存方法了，直接执行sql
         String id = mappedStatement.getId();
-        if (id.endsWith(BatchInsertContext.EGD_SINGLE_INSERT)) {
+        if (id.endsWith(BatchContext.EGD_SINGLE_INSERT)) {
             return invocation.proceed();
         }
         // 其他保存方法，先声明一个BatchInsert，后面赋值，并根据这个batchInsert执行sql
         BatchInsert batchInsert;
-        if (BatchInsertContext.isInSpring()) {
+        if (BatchContext.isInSpring()) {
             // spring环境下，直接调用上下文的方法判断是否是批量保存方法
-            if (BatchInsertContext.isBatchInsertMappedStatement(id)) {
+            if (BatchContext.isBatchInsertMappedStatement(id)) {
                 // 是批量保存方法，获取它的BatchInsert注解
-                batchInsert = BatchInsertContext.getBatchInsertByMappedStatementId(id);
+                batchInsert = BatchContext.getBatchInsertByMappedStatementId(id);
             } else {
                 // 不是批量保存方法，直接执行sql
                 return invocation.proceed();
@@ -143,7 +137,7 @@ public class BatchInsertInterceptor implements Interceptor {
                 // 截去方法名，替换成指定的单条保存方法名
                 statement = mappedStatementId.substring(0, mappedStatementId.lastIndexOf(".") + 1) + insert;
             } else {
-                statement = mappedStatementId + BatchInsertContext.EGD_SINGLE_INSERT;
+                statement = mappedStatementId + BatchContext.EGD_SINGLE_INSERT;
             }
             try {
                 for (Object argument : itemList) {
@@ -167,14 +161,14 @@ public class BatchInsertInterceptor implements Interceptor {
                     index++;
                 }
                 // 最后提交一次
-                getBatchSqlSessionBuilder().commit(sqlSession, batchInsert.flushStatements());
+                BatchContext.getBatchSqlSessionBuilder().commit(sqlSession, batchInsert.flushStatements());
             } catch (Throwable throwable) {
                 // 异常回滚
                 sqlSession.rollback();
                 throw throwable;
             }
         } finally {
-            getBatchSqlSessionBuilder().close(sqlSession);
+            BatchContext.getBatchSqlSessionBuilder().close(sqlSession);
         }
         return updateCounts;
     }
@@ -234,7 +228,7 @@ public class BatchInsertInterceptor implements Interceptor {
         //如果是null，说明没获取过
         Map<String, Method> methodMap = mapperClassMethodMap.get(mapperClass);
         if (methodMap == null) {
-            Configuration configuration = BatchInsertContext.getSqlSessionFactory().getConfiguration();
+            Configuration configuration = BatchContext.getSqlSessionFactory().getConfiguration();
             Method[] methods = mapperClass.getDeclaredMethods();
             methodMap = Arrays.stream(methods).filter(method -> {
                 // 仅判断insert的
@@ -262,18 +256,18 @@ public class BatchInsertInterceptor implements Interceptor {
      */
     private BatchInsert findBatchInsert(String id, Method mapperMethod) {
         // 先判断上下文是否已经标识这是个批量保存方法
-        if (BatchInsertContext.isBatchInsertMappedStatement(id)) {
+        if (BatchContext.isBatchInsertMappedStatement(id)) {
             // 直接获取方法注解并返回
-            return BatchInsertContext.getBatchInsertByMappedStatementId(id);
+            return BatchContext.getBatchInsertByMappedStatementId(id);
         }
         // 手动尝试获取BatchInsert注解
         BatchInsert batchInsert = mapperMethod.getAnnotation(BatchInsert.class);
         if (batchInsert != null) {
             // 本方法拥有BatchInsert注解，注册它成为一个批量保存方法
-            BatchInsertContext.addBatchInsertMappedStatement(id, batchInsert);
-            if (!BatchInsertContext.isInSpring()) {
+            BatchContext.addBatchInsertMappedStatement(id, batchInsert);
+            if (!BatchContext.isInSpring()) {
                 // 不在spring环境里的，还需要额外注册单条保存的MappedStatement
-                BatchInsertContext.registerSingleInsertMappedStatement(id, batchInsert);
+                BatchContext.registerSingleInsertMappedStatement(id, batchInsert);
             }
         }
         return batchInsert;
@@ -285,7 +279,7 @@ public class BatchInsertInterceptor implements Interceptor {
      * @return SqlSession
      */
     private SqlSession openSession(boolean flushStatements) {
-        return getBatchSqlSessionBuilder().build(flushStatements);
+        return BatchContext.getBatchSqlSessionBuilder().build(flushStatements);
     }
 
     @Override
@@ -296,24 +290,6 @@ public class BatchInsertInterceptor implements Interceptor {
     @Override
     public void setProperties(Properties properties) {
 
-    }
-
-    /**
-     * 获取批量SqlSession构造器
-     *
-     * @return BatchSqlSessionBuilder
-     */
-    public BatchSqlSessionBuilder getBatchSqlSessionBuilder() {
-        return batchSqlSessionBuilder;
-    }
-
-    /**
-     * 设置批量SqlSession构造器
-     *
-     * @param batchSqlSessionBuilder 批量SqlSession构造器
-     */
-    public void setBatchSqlSessionBuilder(BatchSqlSessionBuilder batchSqlSessionBuilder) {
-        this.batchSqlSessionBuilder = batchSqlSessionBuilder;
     }
 
 }

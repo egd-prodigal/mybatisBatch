@@ -43,6 +43,9 @@ public interface ITestMapper {
     @Select("select count(*) from test")
     int count();
 
+    @Delete("delete from test where id = #{id}")
+    int deleteById(@Param("id") int id);
+
 
     class Provider {
 

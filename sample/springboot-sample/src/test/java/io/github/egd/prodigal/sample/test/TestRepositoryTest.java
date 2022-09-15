@@ -134,4 +134,11 @@ public class TestRepositoryTest {
         System.out.println(testService.count());
     }
 
+    @Test
+    public void batchModeTest() {
+        deleteAll();
+        testService.batch();
+        System.out.println(testMapper.count());
+    }
+
 }

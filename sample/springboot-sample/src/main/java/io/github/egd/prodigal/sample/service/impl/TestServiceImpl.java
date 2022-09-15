@@ -1,10 +1,12 @@
 package io.github.egd.prodigal.sample.service.impl;
 
+import io.github.egd.prodigal.mybatis.batch.core.BatchHelper;
 import io.github.egd.prodigal.sample.repository.entity.TestPO;
 import io.github.egd.prodigal.sample.repository.mapper.ITestMapper;
 import io.github.egd.prodigal.sample.service.TestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -43,6 +45,25 @@ public class TestServiceImpl implements TestService {
     @Override
     public int count() {
         return testMapper.count();
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    @Override
+    public void batch() {
+        BatchHelper.startBatch();
+        try {
+            TestPO po;
+            for (int i = 0; i < 5; i++) {
+                po = new TestPO();
+                po.setId(i + 1);
+                po.setName("yeemin");
+                testMapper.insert(po);
+            }
+            System.out.println(testMapper.count());
+        } finally {
+            BatchHelper.close();
+        }
+        System.out.println(testMapper.count());
     }
 
 }

@@ -1,6 +1,11 @@
 package io.github.egd.prodigal.mybatis.batch.core;
 
-import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.executor.BatchResult;
+import org.apache.ibatis.executor.Executor;
+import org.apache.ibatis.plugin.PluginException;
+
+import java.sql.SQLException;
+import java.util.List;
 
 /**
  * 批量模式辅助类
@@ -14,9 +19,9 @@ public final class BatchHelper {
     private static final ThreadLocal<Boolean> threadLocal = ThreadLocal.withInitial(() -> Boolean.FALSE);
 
     /**
-     * 批量模式下执行使用的SqlSession，绑定线程
+     * batchExecutor线程对象
      */
-    private static final ThreadLocal<SqlSession> sqlSessionThreadLocal = new ThreadLocal<>();
+    private static final ThreadLocal<Executor> executorThreadLocal = new ThreadLocal<>();
 
     /**
      * 开启批量模式
@@ -38,38 +43,30 @@ public final class BatchHelper {
      * 关闭批量模式，并与执行sql
      */
     public static void close() {
-        if (BatchContext.isInSpring()) {
-            // 交给SpringBatchSqlSessionBuilder执行flushStatements
-            SqlSession sqlSession = BatchContext.getBatchSqlSessionBuilder().build(false);
-            BatchContext.getBatchSqlSessionBuilder().commit(sqlSession, true);
+        Executor executor = executorThreadLocal.get();
+        if (executor != null) {
+            try {
+                List<BatchResult> batchResults = executor.flushStatements();
+                for (BatchResult batchResult : batchResults) {
+                    int[] updateCounts = batchResult.getUpdateCounts();
+                    for (int updateCount : updateCounts) {
+                        System.out.println(updateCount);
+                    }
+                }
+            } catch (SQLException e) {
+                throw new PluginException(e);
+            }
         }
-        SqlSession sqlSession = sqlSessionThreadLocal.get();
-        if (sqlSession != null) {
-            sqlSession.flushStatements();
-            sqlSession.commit();
-            sqlSessionThreadLocal.remove();
-        }
+        executorThreadLocal.remove();
         threadLocal.remove();
     }
 
-    /**
-     * 绑定批量模式的SqlSession
-     *
-     * @param sqlSession sqlSession
-     */
-    public static void boundSqlSession(SqlSession sqlSession) {
-        if (sqlSessionThreadLocal.get() == null) {
-            sqlSessionThreadLocal.set(sqlSession);
-        }
+    public static void setBatchExecutor(Executor executor) {
+        executorThreadLocal.set(executor);
     }
 
-    /**
-     * 获取批量模式的SqlSession
-     *
-     * @return SqlSession
-     */
-    public static SqlSession getSqlSession() {
-        return sqlSessionThreadLocal.get();
+    public static Executor getBatchExecutor() {
+        return executorThreadLocal.get();
     }
 
 }

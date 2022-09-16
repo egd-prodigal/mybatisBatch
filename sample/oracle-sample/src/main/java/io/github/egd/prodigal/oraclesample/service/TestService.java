@@ -18,4 +18,6 @@ public interface TestService {
 
     String unique3();
 
+    void test();
+
 }

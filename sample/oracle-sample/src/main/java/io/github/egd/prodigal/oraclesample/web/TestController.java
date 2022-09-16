@@ -55,4 +55,10 @@ public class TestController {
         }
     }
 
+    @RequestMapping("/test3")
+    public String test3() {
+        testService.test();
+        return "success";
+    }
+
 }

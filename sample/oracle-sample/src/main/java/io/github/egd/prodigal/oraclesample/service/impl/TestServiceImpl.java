@@ -1,5 +1,6 @@
 package io.github.egd.prodigal.oraclesample.service.impl;
 
+import io.github.egd.prodigal.mybatis.batch.core.BatchHelper;
 import io.github.egd.prodigal.oraclesample.entity.TestPO;
 import io.github.egd.prodigal.oraclesample.mapper.ITestMapper;
 import io.github.egd.prodigal.oraclesample.service.TestService;
@@ -43,7 +44,7 @@ public class TestServiceImpl implements TestService {
     @Override
     public int batch2() {
         testMapper.deleteAll();
-        List<TestPO> list =generateList(16);
+        List<TestPO> list = generateList(16);
         testMapper.batchInsert2(list);
         int count = testMapper.count();
         // 设置flushStatements默认为true，最后一页预提交，所以count为16
@@ -107,6 +108,20 @@ public class TestServiceImpl implements TestService {
             throw e;
         }
         return "success";
+    }
+
+    @Override
+    public void test() {
+        testMapper.deleteAll();
+        BatchHelper.startBatch();
+        List<TestPO> list = generateList(5);
+        try {
+            list.forEach(testMapper::insert);
+            System.out.println(testMapper.count());
+        } finally {
+            BatchHelper.close();
+        }
+        System.out.println(testMapper.count());
     }
 
     private List<TestPO> generateList(int size) {

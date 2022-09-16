@@ -1,7 +1,6 @@
 package io.github.egd.prodigal.mybatis.batch.context;
 
 import io.github.egd.prodigal.mybatis.batch.core.BatchContext;
-import io.github.egd.prodigal.mybatis.batch.core.BatchHelper;
 import io.github.egd.prodigal.mybatis.batch.core.BatchSqlSessionBuilder;
 import org.apache.ibatis.plugin.PluginException;
 import org.apache.ibatis.session.ExecutorType;
@@ -57,18 +56,8 @@ public class SpringBatchSqlSessionBuilder implements BatchSqlSessionBuilder {
                 // 事实上，下面的执行基本无效
                 SqlSessionUtils.getSqlSession(sqlSessionFactory).flushStatements();
             }
-            if (BatchHelper.isBatch()) {
-                // 批量模式下使用线程绑定的SqlSession，先获取，没有就新建
-                sqlSession = BatchHelper.getSqlSession();
-                if (sqlSession == null) {
-                    sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH, false);
-                    // 批量模式下，绑定SqlSession加入上下文
-                    BatchHelper.boundSqlSession(sqlSession);
-                }
-            } else {
-                // 重新开启一个SqlSession，基于sqlSessionTemplate创建
-                sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH, false);
-            }
+            // 重新开启一个SqlSession，基于sqlSessionTemplate创建
+            sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH, false);
         }
         return sqlSession;
     }

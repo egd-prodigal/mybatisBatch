@@ -2,28 +2,24 @@ package io.github.egd.prodigal.mybatis.batch.plugins;
 
 import io.github.egd.prodigal.mybatis.batch.core.BatchContext;
 import io.github.egd.prodigal.mybatis.batch.core.BatchHelper;
+import org.apache.ibatis.executor.BatchExecutor;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.SqlCommandType;
-import org.apache.ibatis.plugin.Interceptor;
-import org.apache.ibatis.plugin.Intercepts;
-import org.apache.ibatis.plugin.Invocation;
-import org.apache.ibatis.plugin.Signature;
+import org.apache.ibatis.plugin.*;
 import org.apache.ibatis.session.Configuration;
-import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.transaction.Transaction;
 
 import java.sql.SQLException;
 import java.util.Properties;
+import java.util.function.Predicate;
 
 /**
  * 批量模式拦截器
  */
 @Intercepts(@Signature(type = Executor.class, method = "update", args = {MappedStatement.class, Object.class}))
 public class BatchInterceptor implements Interceptor {
-
-    private final ThreadLocal<Executor> threadLocal = new ThreadLocal<>();
 
     @Override
     public Object intercept(Invocation invocation) throws Throwable {
@@ -61,14 +57,25 @@ public class BatchInterceptor implements Interceptor {
      * @return Object
      */
     private int doBatch(Executor simpleExecutor, MappedStatement mappedStatement, Object parameter) throws SQLException {
-        Executor batchExecutor = threadLocal.get();
-        if (batchExecutor == null) {
-            SqlSessionFactory sqlSessionFactory = BatchContext.getSqlSessionFactory();
-            Configuration configuration = sqlSessionFactory.getConfiguration();
-            Transaction transaction = simpleExecutor.getTransaction();
-            batchExecutor = configuration.newExecutor(transaction, ExecutorType.BATCH);
+        Executor executor = BatchHelper.getBatchExecutor();
+        if (executor == null) {
+            synchronized (BatchHelper.class) {
+                if (BatchHelper.getBatchExecutor() == null) {
+                    SqlSessionFactory sqlSessionFactory = BatchContext.getSqlSessionFactory();
+                    Configuration configuration = sqlSessionFactory.getConfiguration();
+                    Transaction transaction = simpleExecutor.getTransaction();
+                    InterceptorChain interceptorChain = new InterceptorChain();
+                    Predicate<Interceptor> predicate = interceptor -> !(interceptor instanceof BatchInterceptor);
+                    configuration.getInterceptors().stream().filter(predicate).forEach(interceptorChain::addInterceptor);
+                    executor = (Executor) interceptorChain.pluginAll(new BatchExecutor(configuration, transaction));
+                    BatchHelper.setBatchExecutor(executor);
+                } else {
+                    executor = BatchHelper.getBatchExecutor();
+                }
+            }
         }
-        return batchExecutor.update(mappedStatement, parameter);
+
+        return executor.update(mappedStatement, parameter);
     }
 
 

@@ -72,6 +72,10 @@ public class BatchInsertInterceptor implements Interceptor {
         } else {
             // 非spring环境，需要反射获取类、方法、方法注解来判断
             Class<?> mapperClass = findMapperClass(id);
+            // 如果存在一些框架自动注册mappedStatement，没有具体实现类，那么可能会没有类
+            if (mapperClass == null) {
+                return invocation.proceed();
+            }
             Method mapperMethod = findMapperMethod(id, mapperClass);
             // 获取的方法为空，基本不可能出现，防止其他插件用了类似的机制，所以此处直接执行sql，让其他插件来解决
             if (mapperMethod == null) {
@@ -205,13 +209,16 @@ public class BatchInsertInterceptor implements Interceptor {
      *
      * @param id MappedStatementId
      * @return Class<?>
-     * @throws ClassNotFoundException 找不到类，基本不会出现
      */
-    private Class<?> findMapperClass(String id) throws ClassNotFoundException {
+    private Class<?> findMapperClass(String id) {
         Class<?> aClass = mapperClassMap.get(id);
         if (aClass == null) {
             String mapperClassName = id.substring(0, id.lastIndexOf("."));
-            aClass = Class.forName(mapperClassName);
+            try {
+                aClass = Class.forName(mapperClassName);
+            } catch (ClassNotFoundException e) {
+                return null;
+            }
             mapperClassMap.put(id, aClass);
         }
         return aClass;

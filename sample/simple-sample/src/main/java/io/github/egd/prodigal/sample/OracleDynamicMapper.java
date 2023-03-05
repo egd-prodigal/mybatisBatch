@@ -4,6 +4,7 @@ import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.SqlCommandType;
 import org.apache.ibatis.scripting.defaults.RawSqlSource;
 import org.apache.ibatis.session.Configuration;
+import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 
@@ -28,16 +29,14 @@ public class OracleDynamicMapper {
         MappedStatement mappedStatement = builder.build();
         cfg.addMappedStatement(mappedStatement);
 
-        try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
+        try (SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH)) {
             Map<String, Object> parameter = new HashMap<>();
             parameter.put("id", 1);
             parameter.put("name", "yeemin");
             int insert = sqlSession.insert(statementName, parameter);
             System.out.println(insert);
-            sqlSession.commit();
+            sqlSession.flushStatements();
         }
     }
-
-
 
 }

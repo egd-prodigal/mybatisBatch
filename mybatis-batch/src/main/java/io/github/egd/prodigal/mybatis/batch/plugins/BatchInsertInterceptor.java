@@ -118,7 +118,7 @@ public class BatchInsertInterceptor implements Interceptor {
     private Object invokeBatchInsert(MappedStatement mappedStatement, BatchInsert batchInsert, Collection<?> itemList, HashMap<?, ?> paramMap) {
         int updateCounts = 0;
         // 先获取SqlSession，必须是Batch模式的
-        SqlSession sqlSession = openSession(batchInsert.flushStatements());
+        SqlSession sqlSession = openSession(batchInsert.flushStatements(), batchInsert.autoCommit());
         try {
             // 批量提交数量
             int batchSize = batchInsert.batchSize();
@@ -166,6 +166,10 @@ public class BatchInsertInterceptor implements Interceptor {
                 }
                 // 最后提交一次
                 BatchContext.getBatchSqlSessionBuilder().commit(sqlSession, batchInsert.flushStatements());
+                boolean autoCommit = batchInsert.autoCommit();
+                if (autoCommit) {
+                    sqlSession.commit();
+                }
             } catch (Throwable throwable) {
                 // 异常回滚
                 sqlSession.rollback();
@@ -285,8 +289,9 @@ public class BatchInsertInterceptor implements Interceptor {
      *
      * @return SqlSession
      */
-    private SqlSession openSession(boolean flushStatements) {
-        return BatchContext.getBatchSqlSessionBuilder().build(flushStatements);
+    private SqlSession openSession(boolean flushStatements, boolean autoCommit) {
+        return autoCommit ? BatchContext.getBatchSqlSessionBuilder().build(flushStatements, true)
+                : BatchContext.getBatchSqlSessionBuilder().build(flushStatements);
     }
 
     @Override

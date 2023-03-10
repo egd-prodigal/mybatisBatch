@@ -56,4 +56,11 @@ public @interface BatchInsert {
      */
     boolean flushStatements() default true;
 
+    /**
+     * 是否直接提交事务
+     *
+     * @return boolean
+     */
+    boolean autoCommit() default false;
+
 }

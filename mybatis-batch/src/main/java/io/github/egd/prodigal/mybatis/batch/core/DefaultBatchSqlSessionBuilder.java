@@ -35,4 +35,17 @@ public class DefaultBatchSqlSessionBuilder implements BatchSqlSessionBuilder {
         return sqlSessionFactory.openSession(ExecutorType.BATCH, false);
     }
 
+    /**
+     * 构造SqlSession，如果自动提交，则不跟着spring事务走，执行完直接提交，或者每一个batchSize都会触发事务提交
+     *
+     * @param flushStatements 是否预提交
+     * @param autoCommit 是否自动提交
+     * @return SqlSession
+     */
+    @Override
+    public SqlSession build(boolean flushStatements, boolean autoCommit) {
+        // 非spring环境或者默认环境下，直接调用openSession方法，并指定Batch模式, 自动提交
+        return sqlSessionFactory.openSession(ExecutorType.BATCH, autoCommit);
+    }
+
 }

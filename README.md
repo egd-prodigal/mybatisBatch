@@ -78,7 +78,7 @@ void batchInsert(@Param("tableName") String tableName, @Param("unused") String u
 <dependency>
     <groupId>io.github.egd-prodigal</groupId>
     <artifactId>mybatis-batch-starter</artifactId>
-    <version>2.0.5</version>
+    <version>2.0.6</version>
 </dependency>
 ```
 示例见项目：sample -> springboot-sample
@@ -93,7 +93,7 @@ void batchInsert(@Param("tableName") String tableName, @Param("unused") String u
 <dependency>
     <groupId>io.github.egd-prodigal</groupId>
     <artifactId>mybatis-batch-spring</artifactId>
-    <version>2.0.5</version>
+    <version>2.0.6</version>
 </dependency>
 ```
 前提是已经在项目里整合好了Mybatis，然后在项目中使用下列任意一种配置：
@@ -121,7 +121,7 @@ void batchInsert(@Param("tableName") String tableName, @Param("unused") String u
 <dependency>
     <groupId>io.github.egd-prodigal</groupId>
     <artifactId>mybatis-batch</artifactId>
-    <version>2.0.5</version>
+    <version>2.0.6</version>
 </dependency>
 ```
 在配置文件 **mybatis-config.xml** （也可以是其他文件名）里增加插件配置：
@@ -355,11 +355,11 @@ assert count = 100;
 - v2.0.3 发布第一个release版本
 - v2.0.4 事务里多个批量保存使用同一个会话
 - v2.0.5 spring事务里强制flushStatements
+- v2.0.6 批量模式增加事务自动提交参数
 
 ### 后续计划
 
-- 批量保存将支持java8 Stream入参
-- 尝试提供比较丰富的入参注解，并且也能实现相同的作用
+- 支持UPDATE、DELETE等其他DML语句
 
 ## 参与者
 

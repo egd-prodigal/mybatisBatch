@@ -16,6 +16,15 @@ public interface BatchSqlSessionBuilder {
     SqlSession build(boolean flushStatements);
 
     /**
+     * 构造SqlSession，如果自动提交，则不跟着spring事务走，执行完直接提交，或者每一个batchSize都会触发事务提交
+     *
+     * @param flushStatements 是否预提交
+     * @param autoCommit 是否自动提交
+     * @return SqlSession
+     */
+    SqlSession build(boolean flushStatements, boolean autoCommit);
+
+    /**
      * 提交事务
      *
      * @param sqlSession sqlSession

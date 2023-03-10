@@ -62,6 +62,12 @@ public class SpringBatchSqlSessionBuilder implements BatchSqlSessionBuilder {
         return sqlSession;
     }
 
+    @Override
+    public SqlSession build(boolean flushStatements, boolean autoCommit) {
+        SqlSessionFactory sqlSessionFactory = sqlSessionTemplate.getSqlSessionFactory();
+        return sqlSessionFactory.openSession(ExecutorType.BATCH, autoCommit);
+    }
+
     /**
      * 提交事务
      *

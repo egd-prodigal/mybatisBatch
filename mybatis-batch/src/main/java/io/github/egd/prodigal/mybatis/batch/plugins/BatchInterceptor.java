@@ -81,7 +81,7 @@ public class BatchInterceptor implements Interceptor {
 
     @Override
     public Object plugin(Object target) {
-        return Interceptor.super.plugin(target);
+        return Plugin.wrap(target, this);
     }
 
     @Override

@@ -51,7 +51,7 @@ public class TestServiceImpl implements TestService {
     @Override
     public void batch() {
         BatchHelper.startBatch();
-        try {
+        try (BatchHelper batchHelper = BatchHelper.startBatch(true)) {
             TestPO po;
             for (int i = 0; i < 5; i++) {
                 po = new TestPO();
@@ -60,8 +60,8 @@ public class TestServiceImpl implements TestService {
                 testMapper.insert(po);
             }
             System.out.println(testMapper.count());
-        } finally {
-            BatchHelper.close();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
         System.out.println(testMapper.count());
     }

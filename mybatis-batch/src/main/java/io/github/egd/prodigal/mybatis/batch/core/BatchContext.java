@@ -194,6 +194,8 @@ public class BatchContext {
         SqlSource sqlSource = mappedStatement.getSqlSource();
         MappedStatement.Builder builder = new MappedStatement.Builder(configuration, id,
                 sqlSource, SqlCommandType.INSERT);
+        // 设置超时时间
+        builder.timeout(mappedStatement.getTimeout());
         configuration.addMappedStatement(builder.build());
     }
 

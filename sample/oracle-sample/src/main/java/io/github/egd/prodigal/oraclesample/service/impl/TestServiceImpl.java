@@ -118,8 +118,9 @@ public class TestServiceImpl implements TestService {
         try {
             list.forEach(testMapper::insert);
             System.out.println(testMapper.count());
+            BatchHelper.flushStatements();
         } finally {
-            BatchHelper.close();
+            BatchHelper.closeBatch();
         }
         System.out.println(testMapper.count());
     }

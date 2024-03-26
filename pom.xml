@@ -52,7 +52,7 @@
 
     <properties>
         <java.version>1.8</java.version>
-        <mybatis.batch.version>2.0.8</mybatis.batch.version>
+        <mybatis.batch.version>2.0.9</mybatis.batch.version>
     </properties>
 
     <dependencyManagement>
